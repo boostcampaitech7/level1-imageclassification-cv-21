@@ -5,10 +5,11 @@ from pytorch_lightning.loggers import CSVLogger
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 import torch
 import os
+import importlib
 
 # Define the LightningModule
 class MyLightningModule(pl.LightningModule):
-    def __init__(self, hparams):
+    def __init__(self, conf):
         """
         Initializes the LightningModule.
 
@@ -16,9 +17,12 @@ class MyLightningModule(pl.LightningModule):
             hparams (dict): Hyperparameters for the model.
         """
         super().__init__()
-        self.hparams = hparams
-        model_path = os.path.join('models', hparams['model_name'] + '.pth')
-        self.model = torch.load(model_path)
+        self.save_hyperparameters(conf)
+        # print(self.hparams)
+        # print(self.hparams.model_name, "this is real model name")
+        model_module = importlib.import_module(f"model.{self.hparams.model_name}")
+        model_class = getattr(model_module, self.hparams.model_name)
+        self.model = model_class()
 
     def forward(self, x):
         """
@@ -68,20 +72,20 @@ class MyLightningModule(pl.LightningModule):
         self.log('val_acc', accuracy)
 
     def test_step(self, test_batch, batch_idx):
-    """
-    Defines the prediction step of the model.
+        """
+        Defines the prediction step of the model.
 
-    Args:
-        test_batch (tuple): Batch of input tensors.
-        batch_idx (int): Index of the batch.
+        Args:
+            test_batch (tuple): Batch of input tensors.
+            batch_idx (int): Index of the batch.
 
-    Returns:
-        list: List of predicted class indices.
-    """
-    x = test_batch
-    output = self.forward(x)
-    _, predicted = torch.max(output, 1)
-    return predicted
+        Returns:
+            list: List of predicted class indices.
+        """
+        x = test_batch
+        output = self.forward(x)
+        _, predicted = torch.max(output, 1)
+        return predicted
 
     def test_epoch_end(self, outputs):
         """

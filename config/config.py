@@ -1,6 +1,7 @@
 # config.py
 import ray
 from ray import tune
+from utils.logger import WandbLogger
 
 class Config:
     def __init__(self):
@@ -14,9 +15,15 @@ class Config:
         self.n_estimators = tune.randint(10, 100)
 
         self.search_space = {
-            'model_name': self.model_name,
             'batch_size': self.batch_size,
             'lr': self.lr,
             'weight_decay': self.weight_decay,
             'n_estimators': self.n_estimators,
         }
+    def get_logger(self):
+        return WandbLogger(project_name=self.model_name, config={
+            "save_dir": self.save_dir,
+            "batch_size": self.batch_size,
+            "max_epochs": self.max_epochs,
+            # add other config parameters as needed
+        })
