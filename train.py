@@ -5,7 +5,7 @@ from ray import tune
 from ray.tune.schedulers import PopulationBasedTraining
 from engine.trainer import MyLightningModule
 import torch
-from pytorch_lightning import Trainer
+from lightning import Trainer
 from config_factory import get_config
 from dataset.dataloader import get_dataloaders, get_test_loader  # Import the dataloader function
 import ray

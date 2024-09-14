@@ -1,7 +1,7 @@
 # imports
 from datetime import date
 import pandas as pd
-import pytorch_lightning as pl
+import lightning as pl
 import torch
 import importlib
 
