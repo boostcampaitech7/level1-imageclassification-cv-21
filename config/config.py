@@ -1,4 +1,3 @@
-# config.py
 from ray import tune
 # from utils.logger import WandbLogger
 

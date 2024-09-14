@@ -1,4 +1,3 @@
-# config/custom_nn_config.py
 from ray import tune
 from config.config import Config
 

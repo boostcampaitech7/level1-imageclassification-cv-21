@@ -1,4 +1,3 @@
-# config/config_factory.py (1-10)
 from config import Config
 from custom_nn_config import CustomNNConfig
 
