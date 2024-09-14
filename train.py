@@ -6,7 +6,7 @@ from ray.tune.schedulers import PopulationBasedTraining
 from engine.trainer import MyLightningModule
 import torch
 from lightning import Trainer
-from config_factory import get_config
+from config.config_factory import get_config
 from dataset.dataloader import get_dataloaders, get_test_loader  # Import the dataloader function
 import ray
 from ray.air.integrations.wandb import WandbLoggerCallback

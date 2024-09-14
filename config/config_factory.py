@@ -1,5 +1,5 @@
-from config import Config
-from custom_nn_config import CustomNNConfig
+from .config import Config
+from .custom_nn_config import CustomNNConfig
 
 CONFIG_MAP = {
     'ResNet18': Config,
