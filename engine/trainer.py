@@ -1,10 +1,8 @@
 # imports
+from datetime import date
+import pandas as pd
 import pytorch_lightning as pl
-from pytorch_lightning.trainer import Trainer
-from pytorch_lightning.loggers import CSVLogger
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 import torch
-import os
 import importlib
 
 # Define the LightningModule
@@ -18,8 +16,6 @@ class MyLightningModule(pl.LightningModule):
         """
         super().__init__()
         self.save_hyperparameters(conf)
-        # print(self.hparams)
-        # print(self.hparams.model_name, "this is real model name")
         model_module = importlib.import_module(f"model.{self.hparams.model_name}")
         model_class = getattr(model_module, self.hparams.model_name)
         self.model = model_class()
@@ -104,7 +100,7 @@ class MyLightningModule(pl.LightningModule):
         test_info = test_info.reset_index().rename(columns={"index": "ID"})
         
         # Save to CSV
-        file_name = f"{self.hparams['model_name']}_{date.today()}.csv"
+        file_name = f"{self.hparams.model_name}_{date.today()}.csv"
         test_info.to_csv(file_name, index=False, lineterminator='\n')
 
 
@@ -117,5 +113,5 @@ class MyLightningModule(pl.LightningModule):
         Returns:
             torch.optim.Adam: Adam optimizer for the model.
         """
-        return torch.optim.Adam(self.model.parameters(), self.hparams['lr'])
+        return torch.optim.Adam(self.model.parameters(), self.hparams.lr)
 

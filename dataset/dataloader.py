@@ -2,7 +2,6 @@
 from torch.utils.data import DataLoader, SubsetRandomSampler
 from dataset import CustomDataset
 from .transforms import get_transforms
-import os
 
 def get_dataloaders(data_path='/home/data/', batch_size=32, num_workers=1):
     """
@@ -17,7 +16,7 @@ def get_dataloaders(data_path='/home/data/', batch_size=32, num_workers=1):
         Tuple[DataLoader, DataLoader]: Train and validation data loaders.
     """
 
-    transform = get_transforms()
+    transform = get_transforms(mode='train')
     full_dataset = CustomDataset(data_path, mode='train', transform=transform)
 
     # Create indices for the train and validation sets
@@ -59,7 +58,7 @@ def get_test_loader(data_path='/home/data/', batch_size=32, num_workers=1):
     Returns:
         DataLoader: Test data loader.
     """
-    transform = get_transforms()
+    transform = get_transforms(mode='test')
     test_dataset = CustomDataset(data_path, mode='test', transform=transform)
     test_loader = DataLoader(test_dataset,
                                batch_size=batch_size,
@@ -69,6 +68,6 @@ def get_test_loader(data_path='/home/data/', batch_size=32, num_workers=1):
 
 
 # Example usage:
-train_loader, val_loader = get_dataloaders(data_path='/home/data/', batch_size=32, num_workers=4)
-test_loader = get_test_loader(data_path='/home/data/', batch_size=32, num_workers=4)
+# train_loader, val_loader = get_dataloaders(data_path='/home/data/', batch_size=32, num_workers=4)
+# test_loader = get_test_loader(data_path='/home/data/', batch_size=32, num_workers=4)
 
