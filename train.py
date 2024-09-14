@@ -16,7 +16,7 @@ from ray.air.integrations.wandb import WandbLoggerCallback
 def train(config):
     # Create the dataloaders
     train_loader, val_loader = get_dataloaders(batch_size=config['batch_size'],
-                                                              num_workers=1)
+                                                              num_workers=config['num_workers'])
     model = MyLightningModule(config)
 
     trainer = Trainer(
@@ -39,29 +39,33 @@ def train(config):
 # Define the tune run function
 def tune_run(config):
     # Define the population-based training scheduler
-    pbt = PopulationBasedTraining(
+    pbt_scheduler = PopulationBasedTraining(
         time_attr="training_iteration", 
-        perturbation_interval=5,
+        perturbation_interval=config.checkpoint_interval,
         metric="mean_accuracy",
         mode="max",
         hyperparam_mutations=config.search_space,
     )
 
-
+    if ray.is_initialized():
+        ray.shutdown()
     ray.init(local_mode=False)
     tuner = tune.Tuner(
         tune.with_resources(
             train, 
-            resources={"cpu": 4, "gpu": 1},
+            resources={"cpu": 4, "gpu": 0.5},
         ),
         param_space={**{key: value for key, value in vars(config).items() if key != 'search_space'}, **config.search_space}, 
         tune_config=tune.TuneConfig(
-        scheduler=pbt, 
+        scheduler=pbt_scheduler, 
         num_samples=config.num_samples,
         ),
         run_config=ray.train.RunConfig(
             name=f"{config.model_name}_tune_runs",
-            checkpoint_config=ray.train.CheckpointConfig(checkpoint_score_attribute="mean_accuracy", num_to_keep=4,),
+            checkpoint_config=ray.train.CheckpointConfig(
+                checkpoint_score_attribute="mean_accuracy", 
+                num_to_keep=4,
+            ),
             storage_path="/tmp/ray_results",
             callbacks=[WandbLoggerCallback(project=config.model_name)],
             verbose=1,

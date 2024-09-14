@@ -11,6 +11,7 @@ class Config:
         self.max_epochs = 100
         self.num_samples = 4  # number of workers in population-based training
         self.num_workers = 2  # number of cpus workers in dataloader
+        self.checkpoint_interval = 5  # number of epoch 
         self.lr = tune.loguniform(0.001, 0.1)
         self.weight_decay = tune.loguniform(0.001, 0.1)
 
