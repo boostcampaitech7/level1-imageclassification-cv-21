@@ -8,7 +8,9 @@ class Config:
         self.save_dir = "/home/logs/"
         self.data_path = "/home/data/"
         self.batch_size = tune.choice([32, 64, 128])
-        self.max_epochs = 1
+        self.max_epochs = 100
+        self.num_samples = 4  # number of workers in population-based training
+        self.num_workers = 2  # number of cpus workers in dataloader
         self.lr = tune.loguniform(0.001, 0.1)
         self.weight_decay = tune.loguniform(0.001, 0.1)
 
