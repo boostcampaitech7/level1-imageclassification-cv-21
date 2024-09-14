@@ -21,14 +21,17 @@ def train(config):
 
     trainer = Trainer(
         max_epochs=config['max_epochs'],
-        accelerator='ddp' if torch.cuda.is_available() else 'cpu',
-        devices=torch.cuda.device_count() if torch.cuda.is_available() else 1,
+        accelerator='ddp',
+        devices=config['num_gpus'],
     )
 
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
-    # Report the metrics
-    val_loss = model.val_loss
-    val_acc = model.val_acc ## TODO: fix here
+
+    # Access the logged values using the trainer object
+    logs = trainer.callback_metrics
+    val_loss = logs['val_loss'].item()
+    val_acc = logs['val_acc'].item()
+
     tune.report(val_loss=val_loss, val_acc=val_acc)
 
 
@@ -93,13 +96,17 @@ def tune_run(config):
 
 # Define the main function
 def main(config):
+    if not torch.cuda.is_available():
+        raise RuntimeError(f"CUDA not available. This program requires a CUDA-enabled NVIDIA GPU.")
+
     tune_run(config)
 
 # Define the main entry point of the script
 if __name__ == "__main__":
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description='Model training and hyperparameter tuning.')
-    parser.add_argument('--model_name', type=str, required=True, help='Name of the model to use.')
+    parser.add_argument('--model_name', type=str, help='Name of the model to use.')
+    parser.add_argument('--num_gpus', type=int, help='Name of the model to use.')
     parser.add_argument('--smoke_test', action='store_true', help='Perform a small trial to test the setup.')
     args = parser.parse_args()
 
@@ -114,5 +121,6 @@ if __name__ == "__main__":
     if args.smoke_test:
         config.max_epochs = 1
         config.num_samples = 1
+        config.num_gpus = 1
     
     main(config)
