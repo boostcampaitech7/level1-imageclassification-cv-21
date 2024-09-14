@@ -54,7 +54,7 @@ def tune_run(config):
             train, 
             resources={"cpu": 4, "gpu": 1},
         ),
-        param_space={"model_name":config.model_name, "save_dir": config.save_dir, "max_epochs": config.max_epochs,}|config.search_space,
+        param_space={**{key: value for key, value in vars(config).items() if key != 'search_space'}, **config.search_space}, 
         tune_config=tune.TuneConfig(
         scheduler=pbt, 
         num_samples=config.num_samples,
