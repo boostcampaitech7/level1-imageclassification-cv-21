@@ -15,88 +15,90 @@ from engine.trainer import MyLightningModule
 
 
 # Define the objective function to optimize
-def train(config):
+def train_func(config):
     # Create the dataloaders
     train_loader, val_loader = get_dataloaders(batch_size=config['batch_size'],
                                                               num_workers=config['num_workers'])
     model = MyLightningModule(config)
 
+    checkpoint_callback = TuneReportCheckpointCallback(
+        metrics={"val_loss": "val_loss", "val_acc": "val_acc"}, 
+        filename="pltrainer.ckpt", on="validation_end",
+    )
+
     trainer = Trainer(
         max_epochs=config['max_epochs'],
-        accelerator='ddp',
+        accelerator='gpu',
         devices=config['num_gpus'],
+        strategy='ddp',
+        callbacks=[checkpoint_callback]
     )
 
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
-
-    # Access the logged values using the trainer object
-    logs = trainer.callback_metrics
-    val_loss = logs['val_loss'].item()
-    val_acc = logs['val_acc'].item()
-
-    tune.report(val_loss=val_loss, val_acc=val_acc)
 
 
 
 # Define the tune run function
 def tune_run(config):
+    if ray.is_initialized():
+        ray.shutdown()
+    ray.init(local_mode=False)
+
     # Define the population-based training scheduler
     pbt_scheduler = PopulationBasedTraining(
         time_attr="training_iteration", 
         perturbation_interval=config.checkpoint_interval,
-        metric="mean_accuracy",
-        mode="max",
+        metric="val_loss",
+        mode="min",
         hyperparam_mutations=config.search_space,
     )
 
-    if ray.is_initialized():
-        ray.shutdown()
-    ray.init(local_mode=False)
-    tuner = tune.Tuner(
-        tune.with_resources(
-            train, 
-            resources={"cpu": 4, "gpu": 0.5},
-        ),
-        param_space={**{key: value for key, value in vars(config).items() if key != 'search_space'}, **config.search_space}, 
-        tune_config=tune.TuneConfig(
+
+    param_space = {**{key: value for key, value in vars(config).items() if key != 'search_space'}, 
+                   **config.search_space}
+
+
+    tune_config = tune.TuneConfig(
         scheduler=pbt_scheduler, 
         num_samples=config.num_samples,
-        ),
-        run_config=ray.train.RunConfig(
-            name=f"{config.model_name}_tune_runs",
-            checkpoint_config=ray.train.CheckpointConfig(
-                checkpoint_score_attribute="mean_accuracy", 
-                num_to_keep=4,
+        )   
+    
+    run_config = ray.train.RunConfig(
+        name=f"{config.model_name}_tune_runs",
+        checkpoint_config=ray.train.CheckpointConfig(
+            num_to_keep=4,
+            checkpoint_score_attribute="val_loss", 
             ),
-            storage_path="/tmp/ray_results",
-            callbacks=[WandbLoggerCallback(project=config.model_name)],
-            verbose=1,
-        ),
+        storage_path="/tmp/ray_results",
+        callbacks=[WandbLoggerCallback(project=config.model_name)],
+        verbose=1,
+        )  
+    
+
+    tuner = tune.Tuner(
+        tune.with_resources(train_func, resources={"cpu": 4, "gpu": 0.5},),
+        tune_config=tune_config,
+        run_config=run_config,
+        param_space=param_space,
     )
 
-    tuner.fit()
+    result_grid = tuner.fit()
+
 
     # Get the best trial
-    best_trial = tuner.get_best_result(metric="val_loss", mode="min")
-
-    # Get the checkpoint of the best trial
-    best_checkpoint_path = best_trial.config.checkpoint
+    best_result = result_grid.get_best_result(metric="val_loss", mode="min")
 
     # Load the best model checkpoint
-    best_model = MyLightningModule.load_from_checkpoint(best_checkpoint_path)
+    with best_result.checkpoint.as_directory() as ckpt_dir:
+        best_model = MyLightningModule.load_from_checkpoint(os.path.join(ckpt_dir, "pltrainer.ckpt"))
 
     # Call the test loader
-    test_loader = get_test_loader(data_path=config['data_path'], batch_size=config['batch_size'], num_workers=1)
+    test_loader = get_test_loader(data_path=config['data_path'], batch_size=64, num_workers=6)
 
     # Define the trainer for testing
-    trainer_test = Trainer(gpus=1 if torch.cuda.is_available() else 0)
-    trainer_test.test(best_model, test_dataloaders=test_loader)
+    trainer_test = Trainer()
+    trainer_test.test(best_model, dataloaders=test_loader)
 
-    # Save the best model
-    best_model_dir = os.path.join(config['save_dir'], "best_model")
-    os.makedirs(best_model_dir, exist_ok=True)
-    best_model_path = os.path.join(best_model_dir, "model.ckpt")
-    torch.save(best_model.state_dict(), best_model_path)
 
     ray.shutdown()
 
