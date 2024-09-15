@@ -121,7 +121,7 @@ if __name__ == "__main__":
     # Initialize and configure the model configuration object
     ConfigClass = get_config(args.model_name)
     config = ConfigClass()
-    for key, value in vars(args):
+    for key, value in vars(args).items():
         if hasattr(config, key) and value is not None:
             setattr(config, key)
 
