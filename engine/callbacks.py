@@ -5,9 +5,9 @@ from datetime import date
 
 class PredictionCallback(Callback):
     def __init__(self, data_path, model_name):
-        self.predictions = []
         self.data_path = data_path
         self.model_name = model_name
+        self.predictions = []
 
     def on_test_batch_end(self, trainer, pl_module, outputs, *args, **kwargs):
         self.predictions.extend(outputs.cpu().numpy())

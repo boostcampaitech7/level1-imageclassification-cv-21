@@ -97,6 +97,7 @@ def test_model(config):
     pred_callback = PredictionCallback(f"{config.data_path}/test.csv", config.model_name)
     trainer_test = Trainer(callbacks=[pred_callback])
     return test_loader, trainer_test
+
 # Define the main function
 def main(config):
     if not torch.cuda.is_available():

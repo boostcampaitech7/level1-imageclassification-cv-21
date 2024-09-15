@@ -20,10 +20,3 @@ class Config:
             'lr': self.lr,
             'weight_decay': self.weight_decay,
         }
-    # def get_logger(self):
-    #     return WandbLogger(project_name=self.model_name, config={
-    #         "save_dir": self.save_dir,
-    #         "batch_size": self.batch_size,
-    #         "max_epochs": self.max_epochs,
-    #         # add other config parameters as needed
-    #     })
