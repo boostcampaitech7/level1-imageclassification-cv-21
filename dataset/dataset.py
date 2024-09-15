@@ -16,7 +16,7 @@ class CustomDataset(Dataset):
         """
         self.data_path = os.path.join(data_path, f'{mode}')
         self.mode = mode
-        self.data = pd.read_csv(os.path.join(data_path, 'train.csv'))
+        self.data = pd.read_csv(os.path.join(data_path, f'{mode}.csv'))
         self.image_paths = self.data['image_path'].tolist()
         if mode == 'train':
             self.labels = self.data['target'].tolist()  # Read image paths from test.csv

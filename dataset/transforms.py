@@ -1,6 +1,6 @@
 from torchvision import transforms
 
-def get_transforms():
+def get_transforms(mode='basic'):
     transform = transforms.Compose([
             transforms.Resize((224, 224)),  # 이미지를 224x224 크기로 리사이즈
             transforms.ToTensor(),  # 이미지를 PyTorch 텐서로 변환

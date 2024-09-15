@@ -1,10 +1,8 @@
 # imports
-import pytorch_lightning as pl
-from pytorch_lightning.trainer import Trainer
-from pytorch_lightning.loggers import CSVLogger
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from datetime import date
+import pandas as pd
+import lightning as pl
 import torch
-import os
 import importlib
 
 # Define the LightningModule
@@ -18,8 +16,6 @@ class MyLightningModule(pl.LightningModule):
         """
         super().__init__()
         self.save_hyperparameters(conf)
-        # print(self.hparams)
-        # print(self.hparams.model_name, "this is real model name")
         model_module = importlib.import_module(f"model.{self.hparams.model_name}")
         model_class = getattr(model_module, self.hparams.model_name)
         self.model = model_class()
@@ -87,28 +83,26 @@ class MyLightningModule(pl.LightningModule):
         _, predicted = torch.max(output, 1)
         return predicted
 
-    def test_epoch_end(self, outputs):
-        """
-        Saves the predicted labels to a CSV file.
-        """
-        predictions = torch.cat(outputs)
-        predictions = predictions.cpu().numpy()
+    # def on_test_epoch_end(self, outputs):
+    #     """
+    #     Saves the predicted labels to a CSV file.
+    #     """
+    #     predictions = torch.cat([output['test_step'] for output in outputs])
+    #     predictions = predictions.cpu().numpy()
         
-        # Assuming test_info is a pandas DataFrame with image paths
-        test_info = pd.read_csv('/home/data/test.csv')
+    #     # Assuming test_info is a pandas DataFrame with image paths
+    #     test_info = pd.read_csv('/home/data/test.csv')
         
-        # Create a new column for the predictions
-        test_info['target'] = predictions
+    #     # Create a new column for the predictions
+    #     test_info['target'] = predictions
         
-        # Reset index and rename the 'index' column to 'ID'
-        test_info = test_info.reset_index().rename(columns={"index": "ID"})
+    #     # Reset index and rename the 'index' column to 'ID'
+    #     test_info = test_info.reset_index().rename(columns={"index": "ID"})
         
-        # Save to CSV
-        file_name = f"{self.hparams['model_name']}_{date.today()}.csv"
-        test_info.to_csv(file_name, index=False, lineterminator='\n')
-
-
-
+    #     # Save to CSV
+    #     file_name = f"{self.hparams.model_name}_{date.today()}.csv"
+    #     test_info.to_csv(file_name, index=False, lineterminator='\n')
+    #     print("Output csv file successfully saved!!")
 
     def configure_optimizers(self):
         """
@@ -117,5 +111,5 @@ class MyLightningModule(pl.LightningModule):
         Returns:
             torch.optim.Adam: Adam optimizer for the model.
         """
-        return torch.optim.Adam(self.model.parameters(), self.hparams['lr'])
+        return torch.optim.Adam(self.model.parameters(), self.hparams.lr)
 
