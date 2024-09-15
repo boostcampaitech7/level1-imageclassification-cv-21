@@ -93,7 +93,7 @@ def tune_run(config):
         best_model = MyLightningModule.load_from_checkpoint(f"{ckpt_dir}/pltrainer.ckpt")
 
     # Call the test loader
-    test_loader = get_test_loader(data_path=config['data_path'], batch_size=64, num_workers=6)
+    test_loader = get_test_loader(data_path=config.data_path, batch_size=64, num_workers=6)
 
     # Define the trainer for testing
     trainer_test = Trainer()
