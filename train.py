@@ -109,9 +109,9 @@ def main(config):
 if __name__ == "__main__":
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description='Model training and hyperparameter tuning.')
-    parser.add_argument('--model_name', type=str, help='Name of the model to use.')
-    parser.add_argument('--num_gpus', type=int, help='Name of the model to use.')
-    parser.add_argument('--smoke_test', action='store_true', help='Perform a small trial to test the setup.')
+    parser.add_argument('--model-name', type=str, help='Name of the model to use.')
+    parser.add_argument('--num-gpus', type=int, help='Name of the model to use.')
+    parser.add_argument('--smoke-test', action='store_true', help='Perform a small trial to test the setup.')
     args = parser.parse_args()
 
     # Initialize and configure the model configuration object
