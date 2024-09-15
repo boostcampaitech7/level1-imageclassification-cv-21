@@ -87,7 +87,7 @@ class MyLightningModule(pl.LightningModule):
         """
         Saves the predicted labels to a CSV file.
         """
-        predictions = torch.cat(outputs)
+        predictions = torch.cat([output['test_step'] for output in outputs])
         predictions = predictions.cpu().numpy()
         
         # Assuming test_info is a pandas DataFrame with image paths
