@@ -39,6 +39,7 @@ vendor
 # Log files
 *.log
 lightning_logs
+*.csv
 
 # Operating system files
 .AppleDouble
