@@ -19,6 +19,8 @@ def get_config(model_name):
     Raises:
         KeyError: If the model name is not found in the config map.
     """
+    if model_name is None:
+        model_name = "ResNet18"
     try:
         return CONFIG_MAP[model_name]
     except KeyError:
