@@ -77,9 +77,9 @@ def tune_run(config):
 
     tuner = tune.Tuner(
         tune.with_resources(train_func, resources={"cpu": 4, "gpu": 0.5},),
-        tune_config=tune_config,
-        run_config=run_config,
-        param_space=param_space,
+        param_space=param_space,  # Hyperparameter search space
+        tune_config=tune_config,  # Tuner configuration
+        run_config=run_config,  # Run environment configuration
     )
 
     result_grid = tuner.fit()
@@ -90,7 +90,7 @@ def tune_run(config):
 
     # Load the best model checkpoint
     with best_result.checkpoint.as_directory() as ckpt_dir:
-        best_model = MyLightningModule.load_from_checkpoint(os.path.join(ckpt_dir, "pltrainer.ckpt"))
+        best_model = MyLightningModule.load_from_checkpoint(f"{ckpt_dir}/pltrainer.ckpt")
 
     # Call the test loader
     test_loader = get_test_loader(data_path=config['data_path'], batch_size=64, num_workers=6)
