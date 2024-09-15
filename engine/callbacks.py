@@ -10,7 +10,7 @@ class PredictionCallback(Callback):
         self.model_name = model_name
 
     def on_test_batch_end(self, trainer, pl_module, outputs, *args, **kwargs):
-        self.predictions.extend(outputs['test_step'].cpu().numpy())
+        self.predictions.extend(outputs.cpu().numpy())
 
     def on_test_end(self, *args, **kwargs):
         predictions = np.array(self.predictions)

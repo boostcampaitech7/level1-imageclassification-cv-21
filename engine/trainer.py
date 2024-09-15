@@ -83,29 +83,26 @@ class MyLightningModule(pl.LightningModule):
         _, predicted = torch.max(output, 1)
         return predicted
 
-    def on_test_epoch_end(self, outputs):
-        """
-        Saves the predicted labels to a CSV file.
-        """
-        predictions = torch.cat([output['test_step'] for output in outputs])
-        predictions = predictions.cpu().numpy()
+    # def on_test_epoch_end(self, outputs):
+    #     """
+    #     Saves the predicted labels to a CSV file.
+    #     """
+    #     predictions = torch.cat([output['test_step'] for output in outputs])
+    #     predictions = predictions.cpu().numpy()
         
-        # Assuming test_info is a pandas DataFrame with image paths
-        test_info = pd.read_csv('/home/data/test.csv')
+    #     # Assuming test_info is a pandas DataFrame with image paths
+    #     test_info = pd.read_csv('/home/data/test.csv')
         
-        # Create a new column for the predictions
-        test_info['target'] = predictions
+    #     # Create a new column for the predictions
+    #     test_info['target'] = predictions
         
-        # Reset index and rename the 'index' column to 'ID'
-        test_info = test_info.reset_index().rename(columns={"index": "ID"})
+    #     # Reset index and rename the 'index' column to 'ID'
+    #     test_info = test_info.reset_index().rename(columns={"index": "ID"})
         
-        # Save to CSV
-        file_name = f"{self.hparams.model_name}_{date.today()}.csv"
-        test_info.to_csv(file_name, index=False, lineterminator='\n')
-        print("Output csv file successfully saved!!")
-
-
-
+    #     # Save to CSV
+    #     file_name = f"{self.hparams.model_name}_{date.today()}.csv"
+    #     test_info.to_csv(file_name, index=False, lineterminator='\n')
+    #     print("Output csv file successfully saved!!")
 
     def configure_optimizers(self):
         """
