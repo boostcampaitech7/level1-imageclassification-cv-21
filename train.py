@@ -1,5 +1,4 @@
 # imports
-import os
 import argparse
 import torch
 from lightning import Trainer
@@ -23,7 +22,7 @@ def train_func(config):
     model = MyLightningModule(config)
 
     checkpoint_callback = TuneReportCheckpointCallback(
-        metrics={"val_loss": "val_loss", "val_acc": "val_acc"}, 
+        metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
         filename="pltrainer.ckpt", on="validation_end",
     )
 
@@ -47,7 +46,7 @@ def tune_run(config):
 
     # Define the population-based training scheduler
     pbt_scheduler = PopulationBasedTraining(
-        time_attr="training_iteration", 
+        time_attr="training_iteration",
         perturbation_interval=config.checkpoint_interval,
         metric="val_loss",
         mode="min",
@@ -55,20 +54,20 @@ def tune_run(config):
     )
 
 
-    param_space = {**{key: value for key, value in vars(config).items() if key != 'search_space'}, 
+    param_space = {**{key: value for key, value in vars(config).items() if key != 'search_space'},
                    **config.search_space}
 
 
     tune_config = tune.TuneConfig(
-        scheduler=pbt_scheduler, 
+        scheduler=pbt_scheduler,
         num_samples=config.num_samples,
         )   
     
-    run_config = ray.train.RunConfig(
+    run_config = train.RunConfig(
         name=f"{config.model_name}_tune_runs",
-        checkpoint_config=ray.train.CheckpointConfig(
+        checkpoint_config=train.CheckpointConfig(
             num_to_keep=4,
-            checkpoint_score_attribute="val_loss", 
+            checkpoint_score_attribute="val_loss",
             ),
         storage_path="/tmp/ray_results",
         callbacks=[WandbLoggerCallback(project=config.model_name)],
@@ -127,10 +126,11 @@ if __name__ == "__main__":
         if hasattr(config, key) and value is not None:
             setattr(config, key)
 
-    # Perform smoke test if enabled        
+    # Perform smoke test if enabled
     if args.smoke_test:
         config.max_epochs = 1
         config.num_samples = 1
         config.num_gpus = 1
-    
+
     main(config)
+
