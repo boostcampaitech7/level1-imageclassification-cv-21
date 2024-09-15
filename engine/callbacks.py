@@ -20,3 +20,10 @@ class PredictionCallback(Callback):
         file_name = f"{self.model_name}_{date.today()}.csv"
         test_info.to_csv(file_name, index=False, lineterminator='\n')
         print("Output csv file successfully saved!!")
+
+
+    def load_state_dict(self, state_dict):
+        self.predictions = state_dict['predictions']
+
+    def state_dict(self):
+        return {'predictions': self.predictions}
