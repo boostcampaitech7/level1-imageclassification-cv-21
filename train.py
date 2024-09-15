@@ -90,11 +90,11 @@ class RayTuner:
         result_grid = tuner.fit()
         return result_grid
 
-def test_model(config):
+def test_model(config, ckpt_dir):
     # Call the test loader
     test_loader = get_test_loader(data_path=config.data_path, batch_size=64, num_workers=6)
     # Define the trainer for testing
-    pred_callback = PredictionCallback(f"{config.data_path}/test.csv", config.model_name)
+    pred_callback = PredictionCallback(f"{config.data_path}/test.csv", ckpt_dir, config.model_name)
     trainer_test = Trainer(callbacks=[pred_callback])
     return test_loader, trainer_test
 
@@ -111,10 +111,9 @@ def main(config):
     # Load the best model checkpoint
     with best_result.checkpoint.as_directory() as ckpt_dir:
         best_model = MyLightningModule.load_from_checkpoint(f"{ckpt_dir}/pltrainer.ckpt")
-
-    # Conduct testing with the best model loaded
-    test_loader, trainer_test = test_model(config)
-    trainer_test.test(best_model, dataloaders=test_loader)
+        # Conduct testing with the best model loaded
+        test_loader, trainer_test = test_model(config, ckpt_dir)
+        trainer_test.test(best_model, dataloaders=test_loader)
 
 
     ray.shutdown()
