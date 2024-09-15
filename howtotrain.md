@@ -6,8 +6,28 @@ This project requires specific dependencies installed in your Python environment
 ## Step 1: Install Required Dependencies
 First, install the required dependencies using pip:
 
+### For Virtual Server (Boostcamp Server) Users
+If you are using the Boostcamp server, you can skip installing CUDA, PyTorch, and Torchvision as they are already installed. However, you still need to install some dependencies for this project.
+
 ```pip install -U lightning "ray[data,train,tune,serve]" wandb```
-This will install the necessary dependencies, including PyTorch Lightning, Ray, and Weights & Biases.
+This will install the necessary dependencies, including PyTorch Lightning, Ray, and Weights & Biases. **Note that you should NOT create new conda environment in the Boostcamp server, since new environment has no CUDA support and it cannot be installed by default.**
+
+### For Physical Server Users
+If you are installing on a physical server, you need to install all dependencies from scratch. We recommend using conda to manage your environment. Here's how you can do it:
+
+#### Install Miniconda or Anaconda
+First, you need to install Miniconda or Anaconda. You can download the installer from the official website: https://docs.conda.io/en/latest/miniconda.html
+
+#### Create a New Conda Environment and Install Dependencies
+To create a new Conda environment and install all the necessary dependencies, use the following command:
+
+```conda env create -n myenv python=3.10 --file requirements.yml```
+This command creates a new Conda environment named 'myenv' with Python 3.9 and installs all dependencies specified in the 'requirements.yml' file, including CUDA, PyTorch, Torchvision, PyTorch-lightning, Ray, and WandB
+
+#### Activate the Environment
+Next, activate the environment:
+
+```conda activate myenv```
 
 ## Step 2: Set up Weights & Biases
 Make sure to set up your Weights & Biases account and install the SDK. You can find more information on setting up Weights & Biases [here](https://docs.wandb.ai/ko/quickstart).
