@@ -98,7 +98,7 @@ def tune_run(config):
 
     # Define the trainer for testing
     pred_callback = PredictionCallback(f"{config.data_path}/test.csv", config.model_name)
-    trainer_test = Trainer(callback=[pred_callback])
+    trainer_test = Trainer(callbacks=[pred_callback])
     trainer_test.test(best_model, dataloaders=test_loader)
 
 
