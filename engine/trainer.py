@@ -83,7 +83,7 @@ class MyLightningModule(pl.LightningModule):
         _, predicted = torch.max(output, 1)
         return predicted
 
-    def test_epoch_end(self, outputs):
+    def on_test_epoch_end(self, outputs):
         """
         Saves the predicted labels to a CSV file.
         """
@@ -102,6 +102,7 @@ class MyLightningModule(pl.LightningModule):
         # Save to CSV
         file_name = f"{self.hparams.model_name}_{date.today()}.csv"
         test_info.to_csv(file_name, index=False, lineterminator='\n')
+        print("Output csv file successfully saved!!")
 
 
 
