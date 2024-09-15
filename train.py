@@ -11,6 +11,7 @@ from ray.air.integrations.wandb import WandbLoggerCallback
 from config.config_factory import get_config
 from dataset.dataloader import get_dataloaders, get_test_loader  # Import the dataloader function
 from engine.trainer import MyLightningModule
+from engine.callbacks import PredictionCallback
 
 
 
@@ -96,7 +97,8 @@ def tune_run(config):
     test_loader = get_test_loader(data_path=config.data_path, batch_size=64, num_workers=6)
 
     # Define the trainer for testing
-    trainer_test = Trainer()
+    pred_callback = PredictionCallback(f"{config.data_dir}/test.csv", config.model_name)
+    trainer_test = Trainer(callback=[pred_callback])
     trainer_test.test(best_model, dataloaders=test_loader)
 
 
