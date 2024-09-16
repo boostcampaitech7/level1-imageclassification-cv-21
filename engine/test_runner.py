@@ -1,7 +1,8 @@
-from engine.callbacks import PredictionCallback
-from engine.lightning_module import LightningModule
+
 from lightning import Trainer
-from dataset.dataloader import get_test_loader  
+from .callbacks import PredictionCallback
+from model import LightningModule
+from dataset import get_test_loader  
 
 def run_test(config, model, ckpt_dir):
     # Call the test loader

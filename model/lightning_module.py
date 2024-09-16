@@ -1,7 +1,6 @@
 # imports
 import lightning as pl
 import torch
-import importlib
 from .model_factory import create_model
 
 # Define the LightningModule

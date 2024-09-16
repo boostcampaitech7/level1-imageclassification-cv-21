@@ -1,6 +1,6 @@
 # dataset/dataloader.py
 from torch.utils.data import DataLoader, SubsetRandomSampler
-from dataset import CustomDataset
+from .dataset import CustomDataset
 from .transforms import get_transforms
 
 def get_dataloaders(data_path='/home/data/', batch_size=32, num_workers=1):

@@ -5,8 +5,8 @@ from ray import train, tune
 from ray.tune.schedulers import PopulationBasedTraining
 from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 from ray.air.integrations.wandb import WandbLoggerCallback
-from dataset.dataloader import get_dataloaders
-from engine.trainer import LightningModule
+from dataset import get_dataloaders
+from model import LightningModule
 
 
 def train_func(config):
