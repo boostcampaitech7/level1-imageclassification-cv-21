@@ -1,5 +1,4 @@
 from ray import tune
-# from utils.logger import WandbLogger
 
 class Config:
     def __init__(self):

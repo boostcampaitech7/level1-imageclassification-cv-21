@@ -1,10 +1,10 @@
-
 from lightning import Trainer
-from .callbacks import PredictionCallback
-from model import LightningModule
-from dataset import get_test_loader  
 
-def run_test(config, model, ckpt_dir):
+from .callbacks import PredictionCallback
+from dataset import get_test_loader 
+from model import LightningModule 
+
+def run_test(config, ckpt_dir):
     # Call the test loader
     test_loader = get_test_loader(data_path=config.data_path, batch_size=64, num_workers=6)
     

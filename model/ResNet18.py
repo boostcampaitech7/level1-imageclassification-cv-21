@@ -1,7 +1,8 @@
 from typing import Optional
-from torchvision import models
+
 import torch
 import torch.nn as nn
+from torchvision import models
 
 class ResNet18(nn.Module):
     """

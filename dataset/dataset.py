@@ -1,8 +1,10 @@
-from torch.utils.data import Dataset
+import os
+
+import cv2
 import pandas as pd
 from PIL import Image
-import cv2
-import os
+from torch.utils.data import Dataset
+
 
 class CustomDataset(Dataset):
     def __init__(self, data_path, mode='train', transform=None):

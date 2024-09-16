@@ -1,10 +1,11 @@
 # tuner.py
-from lightning import Trainer
 import ray
 from ray import train, tune
 from ray.tune.schedulers import PopulationBasedTraining
 from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 from ray.air.integrations.wandb import WandbLoggerCallback
+from lightning import Trainer
+
 from dataset import get_dataloaders
 from model import LightningModule
 
