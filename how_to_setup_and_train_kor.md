@@ -70,3 +70,7 @@ Weights & Biases 계정을 설정하고 SDK를 설치합니다. Weights & Biases
 
 ## 문의
 질문이나 프로젝트에 대한 도움이 필요하면 [연락처 정보를 입력하세요]을 통해 연락해 주세요.
+
+## 추가로 볼 만한 문서
+
+* [tmux를 사용한 백그라운드 트레이닝](using_tmux_for_background_training.md)

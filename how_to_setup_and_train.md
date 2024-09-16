@@ -67,3 +67,7 @@ If you would like to contribute to this project, please fork the repository and 
 
 ## Contact
 If you have any questions or need help with the project, please contact us at [insert contact information].
+
+## Additional Documentation
+
+* [Using Tmux for Background Training](using_tmux_for_background_training.md)
