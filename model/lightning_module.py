@@ -6,7 +6,7 @@ from .model_factory import create_model
 
 # Define the LightningModule
 class LightningModule(pl.LightningModule):
-    def __init__(self, conf):
+    def __init__(self, config_dict):
         """
         Initializes the LightningModule.
 
@@ -14,8 +14,8 @@ class LightningModule(pl.LightningModule):
             hparams (dict): Hyperparameters for the model.
         """
         super().__init__()
-        self.save_hyperparameters(conf)
-        self.model = create_model(self.hparams.model_name, **config.model_config)
+        self.save_hyperparameters(config_dict)
+        self.model = create_model(self.hparams.model_name, **config_dict)
         
     def forward(self, x):
         """

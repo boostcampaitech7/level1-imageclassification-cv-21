@@ -10,16 +10,16 @@ from dataset import get_dataloaders
 from model import LightningModule
 
 
-def train_func(config):  # Note that config is dict here passed by pbt schduler
+def train_func(config_dict):  # Note that config_dict is dict here passed by pbt schduler
     # Create the dataloaders
-    train_loader, val_loader = get_dataloaders(batch_size=config['batch_size'],
-                                                              num_workers=config['num_workers'])
-    model = LightningModule(config)
+    train_loader, val_loader = get_dataloaders(batch_size=config_dict['batch_size'],
+                                                              num_workers=config_dict['num_workers'])
+    model = LightningModule(config_dict)
 
     trainer = Trainer(
-        max_epochs=config['max_epochs'],
+        max_epochs=config_dict['max_epochs'],
         accelerator='gpu',
-        devices=config['num_gpus'],
+        devices=config_dict['num_gpus'],
         strategy='ddp',
         callbacks=[TuneReportCheckpointCallback(
             metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
