@@ -1,41 +1,25 @@
 # imports
 import argparse
 import torch
-from lightning import Trainer
 from config.config_factory import get_config
-from dataset.dataloader import get_dataloaders, get_test_loader  
-from engine.trainer import LightningModule
-from engine.callbacks import PredictionCallback
 from engine.tuner import RayTuner
+from engine.test_runner import run_test
 
 
-def test_model(config, ckpt_dir):
-    # Call the test loader
-    test_loader = get_test_loader(data_path=config.data_path, batch_size=64, num_workers=6)
-    # Define the trainer for testing
-    pred_callback = PredictionCallback(f"{config.data_path}/test.csv", ckpt_dir, config.model_name)
-    trainer_test = Trainer(callbacks=[pred_callback], logger=False)
-    return test_loader, trainer_test
-
-
-def tune_and_test(config):
+def tune_train_and_test(config):
     with RayTuner(config) as ray_tuner:
-        result_grid = ray_tuner.tune() 
+        result_grid = ray_tuner.tune_and_train() 
         # Get the best trial
         best_result = result_grid.get_best_result(metric="val_loss", mode="min")
 
-    # Load the best model checkpoint
-    with best_result.checkpoint.as_directory() as ckpt_dir:
-        best_model = LightningModule.load_from_checkpoint(f"{ckpt_dir}/pltrainer.ckpt")
-        # Conduct testing with the best model loaded
-        test_loader, trainer_test = test_model(config, ckpt_dir)
-        trainer_test.test(best_model, dataloaders=test_loader)
+    # Conduct testing with the best model loaded
+    run_test(config, best_result.checkpoint.as_directory())
 
 def main(config):
     if not torch.cuda.is_available():
         raise RuntimeError(f"CUDA not available. This program requires a CUDA-enabled NVIDIA GPU.")
 
-    tune_and_test(config)
+    tune_train_and_test(config)
 
 
 if __name__ == "__main__":

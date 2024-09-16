@@ -72,7 +72,7 @@ class RayTuner:
         )
         return run_config
 
-    def tune(self):
+    def tune_and_train(self):
         param_space = {**{key: value for key, value in vars(self.config).items() if key != 'search_space'}, 
                         **self.config.search_space}
         tuner = tune.Tuner(
@@ -81,5 +81,5 @@ class RayTuner:
             tune_config=self._define_tune_config(),  # Tuner configuration
             run_config=self._define_run_config(),  # Run environment configuration
         )
-        result_grid = tuner.fit()
+        result_grid = tuner.fit() ## Actual training happens here
         return result_grid
