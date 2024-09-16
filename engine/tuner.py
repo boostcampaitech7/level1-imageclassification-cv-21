@@ -32,7 +32,7 @@ def train_func(config_dict):  # Note that config_dict is dict here passed by pbt
 
 class RayTuner:
     def __init__(self, config):
-        self.config = config  # config is Config class here
+        self.config = config  # config is Config class here consisting of 4 subclass config
 
     def __enter__(self):
         if ray.is_initialized():
@@ -47,7 +47,7 @@ class RayTuner:
         # Define the population-based training scheduler
         pbt_scheduler = PopulationBasedTraining(
             time_attr="training_iteration",
-            perturbation_interval=self.config.checkpoint_interval,
+            perturbation_interval=self.config.experiment.checkpoint_interval,
             metric="val_loss",
             mode="min",
             hyperparam_mutations=self.config.search_space,
@@ -57,19 +57,19 @@ class RayTuner:
     def _define_tune_config(self):
         tune_config = tune.TuneConfig(
             scheduler=self._define_scheduler(),
-            num_samples=self.config.num_samples,
+            num_samples=self.config.experiment.num_samples,
         )
         return tune_config
 
     def _define_run_config(self):
         run_config = train.RunConfig(
-            name=f"{self.config.model_name}_tune_runs",
+            name=f"{self.config.model.model_name}_tune_runs",
             checkpoint_config=train.CheckpointConfig(
                 num_to_keep=4,
                 checkpoint_score_attribute="val_loss",
             ),
             storage_path="/tmp/ray_results",
-            callbacks=[WandbLoggerCallback(project=self.config.model_name)],
+            callbacks=[WandbLoggerCallback(project=self.config.model.model_name)],
             verbose=1,
         )
         return run_config

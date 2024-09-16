@@ -41,8 +41,10 @@ if __name__ == "__main__":
 
     # Perform smoke test if enabled
     if args.smoke_test:
-        config.max_epochs = 1
-        config.num_samples = 1
-        config.num_gpus = 1
+        config.experiment.max_epochs = 1
+        config.experiment.num_samples = 1
+        config.training.num_gpus = 1
+
+
 
     main(config)

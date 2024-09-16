@@ -15,7 +15,7 @@ class LightningModule(pl.LightningModule):
         """
         super().__init__()
         self.save_hyperparameters(config_dict)
-        self.model = create_model(self.hparams.model_name, **config_dict)
+        self.model = create_model(**config_dict)
         
     def forward(self, x):
         """
