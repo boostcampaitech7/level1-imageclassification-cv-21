@@ -1,5 +1,6 @@
 from ray import tune
-from config.config import Config
+
+from .config import Config
 
 class CustomNNConfig(Config):
     def __init__(self):

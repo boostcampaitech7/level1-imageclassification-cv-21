@@ -1,8 +1,10 @@
-from torch.utils.data import Dataset
+import os
+
+import cv2
 import pandas as pd
 from PIL import Image
-import cv2
-import os
+from torch.utils.data import Dataset
+
 
 class CustomDataset(Dataset):
     def __init__(self, data_path, mode='train', transform=None):
@@ -21,15 +23,19 @@ class CustomDataset(Dataset):
         if mode == 'train':
             self.labels = self.data['target'].tolist()  # Read image paths from test.csv
         self.transform = transform
-    
-    def __len__(self):
-        """
-        Returns the length of the dataset.
 
-        Returns:
-        - int: The length of the dataset.
-        """
-        return len(self.image_paths)
+    
+    def _load_image(self, image_path):
+        image = cv2.imread(image_path, cv2.IMREAD_COLOR)  # 이미지를 BGR 컬러 포맷의 numpy array로 읽어옵니다.
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # BGR 포맷을 RGB 포맷으로 변환합니다.
+        # image = self.transform(image)  # 설정된 이미지 변환을 적용합니다.
+        image = Image.fromarray(image)
+        return image
+    
+    def _apply_transform(self, image):
+        if self.transform:
+            image = self.transform(image)
+        return image
     
     def __getitem__(self, index):
         """
@@ -40,15 +46,11 @@ class CustomDataset(Dataset):
 
         Returns:
         - image: The image at the specified index.
-        - label: The label at the specified index (None if in 'test' mode).
+        - label: The label at the specified index (Not returned if in 'test' mode).
         """
         image_path = os.path.join(self.data_path, self.image_paths[index])
-        image = cv2.imread(image_path, cv2.IMREAD_COLOR)  # 이미지를 BGR 컬러 포맷의 numpy array로 읽어옵니다.
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # BGR 포맷을 RGB 포맷으로 변환합니다.
-        # image = self.transform(image)  # 설정된 이미지 변환을 적용합니다.
-        image = Image.fromarray(image)
-        if self.transform is not None:
-            image = self.transform(image)
+        image = self._load_image(image_path)
+        image = self._apply_transform(image)
 
         if self.mode != 'train':
             return image
@@ -57,4 +59,5 @@ class CustomDataset(Dataset):
             return image, label
 
     
-
+    def __len__(self):
+        return len(self.image_paths)

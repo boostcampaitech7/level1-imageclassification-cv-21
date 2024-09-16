@@ -1,13 +1,16 @@
-from lightning.pytorch.callbacks import Callback
+import os
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
-from datetime import date
+from lightning.pytorch.callbacks import Callback
 
 class PredictionCallback(Callback):
-    def __init__(self, data_path, model_name):
-        self.predictions = []
+    def __init__(self, data_path, ckpt_dir, model_name):
         self.data_path = data_path
+        self.ckpt_dir = ckpt_dir
         self.model_name = model_name
+        self.predictions = []
 
     def on_test_batch_end(self, trainer, pl_module, outputs, *args, **kwargs):
         self.predictions.extend(outputs.cpu().numpy())
@@ -17,6 +20,7 @@ class PredictionCallback(Callback):
         test_info = pd.read_csv(self.data_path)
         test_info['target'] = predictions
         test_info = test_info.reset_index().rename(columns={"index": "ID"})
-        file_name = f"{self.model_name}_{date.today()}.csv"
+        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
+        file_name = os.path.join(self.ckpt_dir, f"{self.model_name}_predictions_{current_time}.csv")
         test_info.to_csv(file_name, index=False, lineterminator='\n')
-        print("Output csv file successfully saved!!")
+        print(f"Output csv file successfully saved in {file_name}!!")

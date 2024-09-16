@@ -1,3 +1,3 @@
 # __init__.py
 
-from .ResNet18 import ResNet18
+from .lightning_module import LightningModule

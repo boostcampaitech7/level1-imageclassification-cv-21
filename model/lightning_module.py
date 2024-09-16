@@ -1,13 +1,12 @@
 # imports
-from datetime import date
-import pandas as pd
 import lightning as pl
 import torch
-import importlib
+
+from .model_factory import create_model
 
 # Define the LightningModule
-class MyLightningModule(pl.LightningModule):
-    def __init__(self, conf):
+class LightningModule(pl.LightningModule):
+    def __init__(self, config_dict):
         """
         Initializes the LightningModule.
 
@@ -15,11 +14,12 @@ class MyLightningModule(pl.LightningModule):
             hparams (dict): Hyperparameters for the model.
         """
         super().__init__()
-        self.save_hyperparameters(conf)
-        model_module = importlib.import_module(f"model.{self.hparams.model_name}")
-        model_class = getattr(model_module, self.hparams.model_name)
-        self.model = model_class()
-
+        self.save_hyperparameters(config_dict)
+        self.model = create_model(
+            config_dict['model']['model_name'],
+            **{key: value for key, value in config_dict['model'].items() if key != 'model_name'}
+            )
+        
     def forward(self, x):
         """
         Defines the forward pass of the model.
@@ -82,27 +82,6 @@ class MyLightningModule(pl.LightningModule):
         output = self.forward(x)
         _, predicted = torch.max(output, 1)
         return predicted
-
-    # def on_test_epoch_end(self, outputs):
-    #     """
-    #     Saves the predicted labels to a CSV file.
-    #     """
-    #     predictions = torch.cat([output['test_step'] for output in outputs])
-    #     predictions = predictions.cpu().numpy()
-        
-    #     # Assuming test_info is a pandas DataFrame with image paths
-    #     test_info = pd.read_csv('/home/data/test.csv')
-        
-    #     # Create a new column for the predictions
-    #     test_info['target'] = predictions
-        
-    #     # Reset index and rename the 'index' column to 'ID'
-    #     test_info = test_info.reset_index().rename(columns={"index": "ID"})
-        
-    #     # Save to CSV
-    #     file_name = f"{self.hparams.model_name}_{date.today()}.csv"
-    #     test_info.to_csv(file_name, index=False, lineterminator='\n')
-    #     print("Output csv file successfully saved!!")
 
     def configure_optimizers(self):
         """

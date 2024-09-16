@@ -1,7 +1,9 @@
 from typing import Optional
-from torchvision import models
+
 import torch
 import torch.nn as nn
+import timm
+# from torchvision import models
 
 class ResNet18(nn.Module):
     """
@@ -12,14 +14,14 @@ class ResNet18(nn.Module):
         pretrained (bool, optional): Use pre-trained weights. Defaults to True.
     """
 
-    def __init__(self, num_classes: Optional[int] = None, pretrained: bool = False):
+    def __init__(self, num_classes: Optional[int] = 500, pretrained: bool = False, **kwargs):
         super(ResNet18, self).__init__()
 
         # Load pre-trained ResNet18 model
-        self.model = models.resnet18(pretrained=pretrained, progress=False)
+        self.model = timm.create_model('resnet18', pretrained=pretrained, **kwargs)
 
         # If num_classes is provided, replace the last layer
-        if num_classes is not None:
+        if num_classes:
             self.model.fc = nn.Linear(512, num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
