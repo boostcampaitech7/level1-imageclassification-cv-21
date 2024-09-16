@@ -15,7 +15,8 @@ def tune_train_and_test(config):
         best_result = result_grid.get_best_result(metric="val_loss", mode="min")
 
     # Conduct testing with the best model loaded
-    run_test(config, best_result.checkpoint.as_directory())
+    with best_result.checkpoint.as_directory() as ckpt_dir:
+        run_test(config, ckpt_dir)
 
 def main(config):
     if not torch.cuda.is_available():
