@@ -10,7 +10,7 @@ from dataset import get_dataloaders
 from model import LightningModule
 
 
-def train_func(config):
+def train_func(config):  # Note that config is dict here passed by pbt schduler
     # Create the dataloaders
     train_loader, val_loader = get_dataloaders(batch_size=config['batch_size'],
                                                               num_workers=config['num_workers'])
@@ -38,14 +38,15 @@ class RayTuner:
         if ray.is_initialized():
             ray.shutdown()
         ray.init(local_mode=False)
+        return self
     
-    def __exit__(self):
+    def __exit__(self, type, value, trace_back):
         ray.shutdown()
 
     def _define_scheduler(self):
         # Define the population-based training scheduler
         pbt_scheduler = PopulationBasedTraining(
-            time_attr="training_iteration", 
+            time_attr="training_iteration",
             perturbation_interval=self.config.checkpoint_interval,
             metric="val_loss",
             mode="min",
@@ -55,7 +56,7 @@ class RayTuner:
 
     def _define_tune_config(self):
         tune_config = tune.TuneConfig(
-            scheduler=self._define_scheduler(), 
+            scheduler=self._define_scheduler(),
             num_samples=self.config.num_samples,
         )
         return tune_config
@@ -65,7 +66,7 @@ class RayTuner:
             name=f"{self.config.model_name}_tune_runs",
             checkpoint_config=train.CheckpointConfig(
                 num_to_keep=4,
-                checkpoint_score_attribute="val_loss", 
+                checkpoint_score_attribute="val_loss",
             ),
             storage_path="/tmp/ray_results",
             callbacks=[WandbLoggerCallback(project=self.config.model_name)],
@@ -74,7 +75,7 @@ class RayTuner:
         return run_config
 
     def tune_and_train(self):
-        param_space = {**{key: value for key, value in vars(self.config).items() if key != 'search_space'}, 
+        param_space = {**{key: value for key, value in vars(self.config).items() if key != 'search_space'},
                         **self.config.search_space}
         tuner = tune.Tuner(
             tune.with_resources(train_func, resources={"cpu": 4, "gpu": 0.5}), # TODO: What does with_resources do?
