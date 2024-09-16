@@ -2,7 +2,8 @@ from typing import Optional
 
 import torch
 import torch.nn as nn
-from torchvision import models
+import timm
+# from torchvision import models
 
 class ResNet18(nn.Module):
     """
@@ -17,7 +18,7 @@ class ResNet18(nn.Module):
         super(ResNet18, self).__init__()
 
         # Load pre-trained ResNet18 model
-        self.model = models.resnet18(pretrained=pretrained, **kwargs)
+        self.model = timm.create_model('resnet18', pretrained=pretrained, **kwargs)
 
         # If num_classes is provided, replace the last layer
         if num_classes:
