@@ -12,14 +12,18 @@ from model import LightningModule
 
 def train_func(config_dict):  # Note that config_dict is dict here passed by pbt schduler
     # Create the dataloaders
-    train_loader, val_loader = get_dataloaders(batch_size=config_dict['batch_size'],
-                                                              num_workers=config_dict['num_workers'])
+    train_loader, val_loader = get_dataloaders(
+        data_path=config_dict['dataset']['data_path'], 
+        batch_size=config_dict['batch_size'],
+        num_workers=config_dict['experiment']['num_workers']
+        )
     model = LightningModule(config_dict)
+    # model = LightningModule(config_dict)
 
     trainer = Trainer(
-        max_epochs=config_dict['max_epochs'],
+        max_epochs=config_dict['experiment']['max_epochs'],
         accelerator='gpu',
-        devices=config_dict['num_gpus'],
+        devices=config_dict['experiment']['num_gpus'],
         strategy='ddp',
         callbacks=[TuneReportCheckpointCallback(
             metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
@@ -75,8 +79,7 @@ class RayTuner:
         return run_config
 
     def tune_and_train(self):
-        param_space = {**{key: value for key, value in vars(self.config).items() if key != 'search_space'},
-                        **self.config.search_space}
+        param_space = self.config.to_nested_dict()
         tuner = tune.Tuner(
             tune.with_resources(train_func, resources={"cpu": 4, "gpu": 0.5}), # TODO: What does with_resources do?
             param_space=param_space,  # Hyperparameter search space

@@ -57,4 +57,13 @@ class Config:
             **vars(self.dataset),
             **vars(self.experiment)
         }
+    
+    def to_nested_dict(self):
+        return {
+            'model': vars(self.model),
+            'training': vars(self.training),
+            'dataset': vars(self.dataset),
+            'experiment': vars(self.experiment),
+            **self.search_space
+        }
         
