@@ -73,7 +73,6 @@ class RayTuner:
         return run_config
 
     def tune(self):
-        self._init_ray()
         param_space = {**{key: value for key, value in vars(self.config).items() if key != 'search_space'}, 
                         **self.config.search_space}
         tuner = tune.Tuner(

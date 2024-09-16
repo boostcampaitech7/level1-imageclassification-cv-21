@@ -37,7 +37,6 @@ def main(config):
 
     tune_and_test(config)
 
-    ray.shutdown()
 
 if __name__ == "__main__":
     # Parse command-line arguments
