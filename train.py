@@ -13,7 +13,6 @@ from engine.trainer import MyLightningModule
 from engine.callbacks import PredictionCallback
 
 
-
 # Define the objective function to optimize
 def train_func(config):
     # Create the dataloaders
@@ -21,18 +20,17 @@ def train_func(config):
                                                               num_workers=config['num_workers'])
     model = MyLightningModule(config)
 
-    checkpoint_callback = TuneReportCheckpointCallback(
-        metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
-        filename="pltrainer.ckpt", on="validation_end",
-    )
 
     trainer = Trainer(
         max_epochs=config['max_epochs'],
         accelerator='gpu',
         devices=config['num_gpus'],
         strategy='ddp',
-        callbacks=[checkpoint_callback]
-    )
+        callbacks=[TuneReportCheckpointCallback(
+            metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
+            filename="pltrainer.ckpt", on="validation_end",
+            )],
+        )
 
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
