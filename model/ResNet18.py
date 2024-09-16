@@ -12,11 +12,11 @@ class ResNet18(nn.Module):
         pretrained (bool, optional): Use pre-trained weights. Defaults to True.
     """
 
-    def __init__(self, num_classes: Optional[int] = 500, pretrained: bool = False):
+    def __init__(self, num_classes: Optional[int] = 500, pretrained: bool = False, **kwargs):
         super(ResNet18, self).__init__()
 
         # Load pre-trained ResNet18 model
-        self.model = models.resnet18(pretrained=pretrained)
+        self.model = models.resnet18(pretrained=pretrained, **kwargs)
 
         # If num_classes is provided, replace the last layer
         if num_classes:
