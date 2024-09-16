@@ -2,91 +2,12 @@
 import argparse
 import torch
 from lightning import Trainer
-import ray
-from ray import train, tune
-from ray.tune.schedulers import PopulationBasedTraining
-from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
-from ray.air.integrations.wandb import WandbLoggerCallback
 from config.config_factory import get_config
-from dataset.dataloader import get_dataloaders, get_test_loader  # Import the dataloader function
-from engine.trainer import MyLightningModule
+from dataset.dataloader import get_dataloaders, get_test_loader  
+from engine.trainer import LightningModule
 from engine.callbacks import PredictionCallback
+from engine.tuner import RayTuner
 
-
-# Define the objective function to optimize
-def train_func(config):
-    # Create the dataloaders
-    train_loader, val_loader = get_dataloaders(batch_size=config['batch_size'],
-                                                              num_workers=config['num_workers'])
-    model = MyLightningModule(config)
-
-
-    trainer = Trainer(
-        max_epochs=config['max_epochs'],
-        accelerator='gpu',
-        devices=config['num_gpus'],
-        strategy='ddp',
-        callbacks=[TuneReportCheckpointCallback(
-            metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
-            filename="pltrainer.ckpt", on="validation_end",
-            )],
-        )
-
-    trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
-
-
-class RayTuner:
-    def __init__(self, config):
-        self.config = config  # config is Config class here
-
-    def _init_ray(self):
-        if ray.is_initialized():
-            ray.shutdown()
-        ray.init(local_mode=False)
-
-    def _define_scheduler(self):
-        # Define the population-based training scheduler
-        pbt_scheduler = PopulationBasedTraining(
-            time_attr="training_iteration", 
-            perturbation_interval=self.config.checkpoint_interval,
-            metric="val_loss",
-            mode="min",
-            hyperparam_mutations=self.config.search_space,
-        )
-        return pbt_scheduler
-
-    def _define_tune_config(self):
-        tune_config = tune.TuneConfig(
-            scheduler=self._define_scheduler(), 
-            num_samples=self.config.num_samples,
-        )
-        return tune_config
-
-    def _define_run_config(self):
-        run_config = train.RunConfig(
-            name=f"{self.config.model_name}_tune_runs",
-            checkpoint_config=train.CheckpointConfig(
-                num_to_keep=4,
-                checkpoint_score_attribute="val_loss", 
-            ),
-            storage_path="/tmp/ray_results",
-            callbacks=[WandbLoggerCallback(project=self.config.model_name)],
-            verbose=1,
-        )
-        return run_config
-
-    def tune(self):
-        self._init_ray()
-        param_space = {**{key: value for key, value in vars(self.config).items() if key != 'search_space'}, 
-                        **self.config.search_space}
-        tuner = tune.Tuner(
-            tune.with_resources(train_func, resources={"cpu": 4, "gpu": 0.5}), # TODO: What does with_resources do?
-            param_space=param_space,  # Hyperparameter search space
-            tune_config=self._define_tune_config(),  # Tuner configuration
-            run_config=self._define_run_config(),  # Run environment configuration
-        )
-        result_grid = tuner.fit()
-        return result_grid
 
 def test_model(config, ckpt_dir):
     # Call the test loader
@@ -96,27 +17,28 @@ def test_model(config, ckpt_dir):
     trainer_test = Trainer(callbacks=[pred_callback], logger=False)
     return test_loader, trainer_test
 
-# Define the main function
-def main(config):
-    if not torch.cuda.is_available():
-        raise RuntimeError(f"CUDA not available. This program requires a CUDA-enabled NVIDIA GPU.")
-    
-    ray_tuner = RayTuner(config)
-    result_grid = ray_tuner.tune()
-    # Get the best trial
-    best_result = result_grid.get_best_result(metric="val_loss", mode="min")
+
+def tune_and_test(config):
+    with RayTuner(config) as ray_tuner:
+        result_grid = ray_tuner.tune() 
+        # Get the best trial
+        best_result = result_grid.get_best_result(metric="val_loss", mode="min")
 
     # Load the best model checkpoint
     with best_result.checkpoint.as_directory() as ckpt_dir:
-        best_model = MyLightningModule.load_from_checkpoint(f"{ckpt_dir}/pltrainer.ckpt")
+        best_model = LightningModule.load_from_checkpoint(f"{ckpt_dir}/pltrainer.ckpt")
         # Conduct testing with the best model loaded
         test_loader, trainer_test = test_model(config, ckpt_dir)
         trainer_test.test(best_model, dataloaders=test_loader)
 
+def main(config):
+    if not torch.cuda.is_available():
+        raise RuntimeError(f"CUDA not available. This program requires a CUDA-enabled NVIDIA GPU.")
+
+    tune_and_test(config)
 
     ray.shutdown()
 
-# Define the main entry point of the script
 if __name__ == "__main__":
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description='Model training and hyperparameter tuning.')
@@ -139,4 +61,3 @@ if __name__ == "__main__":
         config.num_gpus = 1
 
     main(config)
-
