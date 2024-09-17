@@ -30,6 +30,7 @@ def train_func(config_dict):  # Note that config_dict is dict here passed by pbt
             metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
             filename="pltrainer.ckpt", on="validation_end",
             )],
+        enable_progress_bar=False,
         )
 
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
