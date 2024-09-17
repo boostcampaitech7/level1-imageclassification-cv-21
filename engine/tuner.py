@@ -16,7 +16,7 @@ def train_func(config_dict):  # Note that config_dict is dict here passed by pbt
     # Create the dataloaders
     train_loader, val_loader = get_dataloaders(
         data_path=config_dict['dataset']['data_path'], 
-        batch_size=config_dict['batch_size'],
+        batch_size=config_dict['training']['batch_size'],
         num_workers=config_dict['experiment']['num_workers']
         )
     model = LightningModule(config_dict)
