@@ -25,6 +25,7 @@ def train_func(config_dict):  # Note that config_dict is dict here passed by pbt
         accelerator='gpu',
         devices=config_dict['experiment']['num_gpus'],
         strategy='ddp',
+        logger=False,
         callbacks=[TuneReportCheckpointCallback(
             metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
             filename="pltrainer.ckpt", on="validation_end",
