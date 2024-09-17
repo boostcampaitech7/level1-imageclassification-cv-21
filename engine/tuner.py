@@ -72,7 +72,7 @@ class RayTuner:
                 num_to_keep=4,
                 checkpoint_score_attribute="val_loss",
             ),
-            storage_path="/tmp/ray_results",
+            storage_path=f"{self.config.experiment.save_dir}/ray_results",
             callbacks=[WandbLoggerCallback(project=self.config.model.model_name)],
             verbose=1,
         )
