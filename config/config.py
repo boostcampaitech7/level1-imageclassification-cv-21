@@ -20,14 +20,14 @@ class TrainingConfig:
 class DatasetConfig:
     """Dataset-related configuration."""
     def __init__(self):
-        self.data_path = "/home/data/"
+        self.data_path = "/data/ephemeral/home/data/"
         # self.transform_mode = 'albumentation'
 
 
 class ExperimentConfig:
     """Experiment-related configuration."""
     def __init__(self):
-        self.save_dir = "/home/logs/"
+        self.save_dir = "/data/ephemeral/home/logs/"
         self.num_gpus = 1
         self.max_epochs = 100
         self.num_workers = 2  # number of cpus workers in dataloader

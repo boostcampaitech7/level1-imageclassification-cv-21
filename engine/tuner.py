@@ -25,10 +25,12 @@ def train_func(config_dict):  # Note that config_dict is dict here passed by pbt
         accelerator='gpu',
         devices=config_dict['experiment']['num_gpus'],
         strategy='ddp',
+        logger=False,
         callbacks=[TuneReportCheckpointCallback(
             metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
             filename="pltrainer.ckpt", on="validation_end",
             )],
+        enable_progress_bar=False,
         )
 
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
@@ -72,7 +74,7 @@ class RayTuner:
                 num_to_keep=4,
                 checkpoint_score_attribute="val_loss",
             ),
-            storage_path="/tmp/ray_results",
+            storage_path=f"{self.config.experiment.save_dir}/ray_results",
             callbacks=[WandbLoggerCallback(project=self.config.model.model_name)],
             verbose=1,
         )
