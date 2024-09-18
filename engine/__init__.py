@@ -1,1 +1,1 @@
-from .callbacks import CustomRayTrainReportCallback, PredictionCallback
+from .callbacks import PredictionCallback
