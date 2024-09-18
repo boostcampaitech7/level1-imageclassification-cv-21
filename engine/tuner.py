@@ -60,7 +60,7 @@ class RayTuner:
             resources_per_worker={
                 "CPU": 6/self.config.experiment.num_workers, 
                 "GPU": 1/self.config.experiment.num_workers
-                }
+                },
         )
         return scaling_config
     def _define_run_config(self):
@@ -97,6 +97,7 @@ class RayTuner:
                 accelerator='auto',
                 strategy='auto',
                 callbacks=[RayTrainReportCallback()],
+                enable_checkpointing=False,
                 enable_progress_bar=False,
                 )
 
@@ -122,14 +123,13 @@ class RayTuner:
         config_dict = flatten_to_nested(config_dict)
         # Create the dataloaders
         train_loader, val_loader = get_dataloaders(
-            data_path=config_dict['dataset']['data_path'], 
+            data_path=self.config.dataset.data_path, 
             batch_size=config_dict['batch_size'],
             num_workers=2
             )
-        print(config_dict)
         model = LightningModule(config_dict)
 
-        trainer = self._define_pltrainer(config_dict)
+        trainer = self._define_pltrainer()
         
         trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
