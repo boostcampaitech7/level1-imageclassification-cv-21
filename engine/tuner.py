@@ -57,7 +57,10 @@ class RayTuner:
         scaling_config = ScalingConfig(
             num_workers=self.config.experiment.num_workers,
             use_gpu=True,
-            resources_per_worker={"CPU": 5, "GPU": 1}
+            resources_per_worker={
+                "CPU": 6/self.config.experiment.num_workers, 
+                "GPU": 1/self.config.experiment.num_workers
+                }
         )
         return scaling_config
     def _define_run_config(self):
@@ -74,8 +77,32 @@ class RayTuner:
             verbose=1,
         )
         return run_config
-    @staticmethod
-    def _train_func(config_dict):
+    def _define_pltrainer(self):
+        if self.config.experiment.ddp:
+            trainer = Trainer(
+                max_epochs=self.config.experiment.max_epochs,
+                devices='auto',
+                accelerator='auto',
+                strategy=RayDDPStrategy(),
+                callbacks=[RayTrainReportCallback()],
+                plugins=[RayLightningEnvironment()],
+                enable_progress_bar=False,
+                )
+            
+            trainer = prepare_trainer(trainer)
+        else:
+            trainer = Trainer(
+                max_epochs=self.config.experiment.max_epochs,
+                devices=self.config.experiment.num_gpus,
+                accelerator='auto',
+                strategy='auto',
+                callbacks=[RayTrainReportCallback()],
+                enable_progress_bar=False,
+                )
+
+        return trainer
+
+    def _train_func(self, config_dict): # TODO: Clean up nested dict since it is now method
         def flatten_to_nested(flattened_dict):
             # transforms the dict of the form {key}_{subkey}:value to nested dict.
             nested_dict = {'dataset': {}, 'model': {}, 'experiment': {}}
@@ -102,16 +129,8 @@ class RayTuner:
         print(config_dict)
         model = LightningModule(config_dict)
 
-        trainer = Trainer(
-            devices='auto',
-            accelerator='auto',
-            strategy=RayDDPStrategy(),
-            callbacks=[RayTrainReportCallback()],
-            plugins=[RayLightningEnvironment()],
-            enable_progress_bar=False,
-            )
+        trainer = self._define_pltrainer(config_dict)
         
-        trainer = prepare_trainer(trainer)
         trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
     def tune_and_train(self):

@@ -33,6 +33,7 @@ class ExperimentConfig:
         self.num_workers = 1  # number of workers in scheduling
         self.num_samples = 20  # number of workers in ray tune
         self.checkpoint_interval = 5  # number of intervals to save checkpoint in pbt.
+        self.ddp = False
 
 
 class Config:
