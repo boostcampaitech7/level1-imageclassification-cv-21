@@ -3,13 +3,15 @@ from datetime import datetime
 import ray
 from ray import train, tune
 # from ray.tune.schedulers import PopulationBasedTraining
+# from ray.tune.schedulers improt ASHAScheduler 
 from ray.tune.schedulers.pb2 import PB2
-from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 from ray.air.integrations.wandb import WandbLoggerCallback
 from lightning import Trainer
+from ray.train import RunConfig, CheckpointConfig
 
 from dataset import get_dataloaders
 from model import LightningModule
+from engine import CustomRayTrainReportCallback
 
 
 def train_func(config_dict):  # Note that config_dict is dict here passed by pbt schduler
@@ -20,21 +22,18 @@ def train_func(config_dict):  # Note that config_dict is dict here passed by pbt
         num_workers=config_dict['experiment']['num_workers']
         )
     model = LightningModule(config_dict)
-    # model = LightningModule(config_dict)
 
     trainer = Trainer(
         max_epochs=config_dict['experiment']['max_epochs'],
-        accelerator='gpu',
+        accelerator='auto',
         devices=config_dict['experiment']['num_gpus'],
         strategy='ddp',
         logger=False,
-        callbacks=[TuneReportCheckpointCallback(
-            metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
-            filename="pltrainer.ckpt", on="validation_end",
-            )],
+        callbacks=[CustomRayTrainReportCallback(checkpoint_interval=config_dict['experiment']['checkpoint_interval'])],
         enable_progress_bar=False,
+        enable_checkpointing=False,
         )
-
+    
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
 
@@ -78,9 +77,9 @@ class RayTuner:
 
     def _define_run_config(self):
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
-        run_config = train.RunConfig(
+        run_config = RunConfig(
             name=f"{self.config.model.model_name}_tune_runs_{current_time}",
-            checkpoint_config=train.CheckpointConfig(
+            checkpoint_config=CheckpointConfig(
                 num_to_keep=10,
                 checkpoint_score_attribute="val_loss",
                 checkpoint_score_order="min",
