@@ -28,10 +28,8 @@ def train_func(config_dict):  # Note that config_dict is dict here passed by pbt
         accelerator='auto',
         devices=config_dict['experiment']['num_gpus'],
         strategy='ddp',
-        logger=False,
         callbacks=[CustomRayTrainReportCallback(checkpoint_interval=config_dict['experiment']['checkpoint_interval'])],
         enable_progress_bar=False,
-        enable_checkpointing=False,
         )
     
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
