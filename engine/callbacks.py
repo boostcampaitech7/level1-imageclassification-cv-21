@@ -8,33 +8,6 @@ from lightning.pytorch.callbacks import Callback
 from ray import train
 from ray.train import Checkpoint
 
-class CustomRayTrainReportCallback(Callback):
-    def __init__(self, 
-                 checkpoint_interval=5):
-        self.checkpoint_interval = checkpoint_interval
-
-    def on_validation_end(self, trainer, pl_module):
-        should_checkpoint = trainer.current_epoch % self.checkpoint_interval == 0
-        with TemporaryDirectory() as tmpdir:
-            # Fetch metrics
-            metrics = trainer.callback_metrics
-            metrics = {k: v.item() for k, v in metrics.items()}
-            # Add customized metrics
-            metrics["epoch"] = trainer.current_epoch
-            
-            checkpoint = None
-            global_rank = train.get_context().get_world_rank() == 0
-            if should_checkpoint and global_rank:
-                # Save model checkpoint file to tmpdir
-                ckpt_path = os.path.join(tmpdir, "ckpt.ckpt")
-                trainer.save_checkpoint(ckpt_path, weights_only=False)
-                checkpoint = Checkpoint.from_directory(tmpdir)
-
-            # Report to train session
-            train.report(metrics=metrics, checkpoint=checkpoint)
-
-
-
 class PredictionCallback(Callback):
     def __init__(self, data_path, ckpt_dir, model_name):
         self.data_path = data_path
