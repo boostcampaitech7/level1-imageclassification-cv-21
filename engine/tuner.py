@@ -14,7 +14,6 @@ from ray.train.lightning import (
 )
 from dataset import get_dataloaders
 from model import LightningModule
-# from engine import CustomRayTrainReportCallback
 from ray.train.torch import TorchTrainer
 
 class RayTuner:
@@ -75,7 +74,7 @@ class RayTuner:
             verbose=1,
         )
         return run_config
-    
+    @staticmethod
     def _train_func(config_dict):
         def flatten_to_nested(flattened_dict):
             # transforms the dict of the form {key}_{subkey}:value to nested dict.
