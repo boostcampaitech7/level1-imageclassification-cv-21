@@ -45,7 +45,7 @@ class LightningModule(pl.LightningModule):
         x, y = train_batch
         output = self.forward(x)
         loss = torch.nn.CrossEntropyLoss()(output, y)
-        self.log('train_loss', loss)
+        self.log('train_loss', loss, sync_dist=True)
         return {'loss': loss}
 
     def validation_step(self, val_batch, batch_idx):
@@ -64,8 +64,8 @@ class LightningModule(pl.LightningModule):
         loss = torch.nn.CrossEntropyLoss()(output, y)
         _, predicted = torch.max(output, 1)
         accuracy = (predicted == y).sum().item() / len(x)
-        self.log('val_loss', loss)
-        self.log('val_acc', accuracy)
+        self.log('val_loss', loss, sync_dist=True)
+        self.log('val_acc', accuracy, sync_dist=True)
 
     def test_step(self, test_batch, batch_idx):
         """
