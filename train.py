@@ -31,6 +31,7 @@ if __name__ == "__main__":
     parser.add_argument('--model-name', type=str, help='Name of the model to use.')
     parser.add_argument('--num-gpus', type=int, help='Name of the model to use.')
     parser.add_argument('--smoke-test', action='store_true', help='Perform a small trial to test the setup.')
+    parser.add_argument('--ddp', action='store_true', help='Perform the distributed data parallel. Only use when you have multiple gpus.')
     args = parser.parse_args()
 
     # Initialize and configure the model configuration object

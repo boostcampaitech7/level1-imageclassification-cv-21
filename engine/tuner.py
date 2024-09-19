@@ -2,46 +2,30 @@
 from datetime import datetime
 import ray
 from ray import train, tune
-# from ray.tune.schedulers import PopulationBasedTraining
-from ray.tune.schedulers.pb2 import PB2
-from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
+from ray.tune.schedulers import ASHAScheduler 
 from ray.air.integrations.wandb import WandbLoggerCallback
 from lightning import Trainer
-
+from ray.train import RunConfig, ScalingConfig, CheckpointConfig
+from ray.train.lightning import (
+    RayDDPStrategy,
+    RayLightningEnvironment,
+    RayTrainReportCallback,
+    prepare_trainer,
+)
 from dataset import get_dataloaders
 from model import LightningModule
-
-
-def train_func(config_dict):  # Note that config_dict is dict here passed by pbt schduler
-    # Create the dataloaders
-    train_loader, val_loader = get_dataloaders(
-        data_path=config_dict['dataset']['data_path'], 
-        batch_size=config_dict['training']['batch_size'],
-        num_workers=config_dict['experiment']['num_workers']
-        )
-    model = LightningModule(config_dict)
-    # model = LightningModule(config_dict)
-
-    trainer = Trainer(
-        max_epochs=config_dict['experiment']['max_epochs'],
-        accelerator='gpu',
-        devices=config_dict['experiment']['num_gpus'],
-        strategy='ddp',
-        logger=False,
-        callbacks=[TuneReportCheckpointCallback(
-            metrics={"val_loss": "val_loss", "val_acc": "val_acc"},
-            filename="pltrainer.ckpt", on="validation_end",
-            )],
-        enable_progress_bar=False,
-        )
-
-    trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
-
+from ray.train.torch import TorchTrainer
 
 class RayTuner:
     def __init__(self, config):
         self.config = config  # config is Config class here consisting of 4 subclass config
-
+        # Define a TorchTrainer without hyper-parameters for Tuner
+        self.ray_trainer = TorchTrainer(
+            self._train_func,
+            train_loop_config=self.config.flatten_to_dict(),
+            scaling_config=self._define_scaling_config(),
+            run_config=self._define_run_config(),
+        )
     def __enter__(self):
         if ray.is_initialized():
             ray.shutdown()
@@ -52,36 +36,39 @@ class RayTuner:
         ray.shutdown()
 
     def _define_scheduler(self):
-        # Define the population-based training scheduler
-        # pbt_scheduler = PopulationBasedTraining(
-        #     time_attr="training_iteration",
-        #     perturbation_interval=self.config.experiment.checkpoint_interval,
-        #     metric="val_loss",
-        #     mode="min",
-        #     hyperparam_mutations=self.config.search_space,
-        # )
-        pbt_scheduler = PB2(
-            time_attr="training_iteration",
-            perturbation_interval=self.config.experiment.checkpoint_interval,
-            metric="val_loss",
-            mode="min",
-            hyperparam_bounds=self.config.search_space,
-        )
-        return pbt_scheduler
+        scheduler = ASHAScheduler(
+            max_t=self.config.experiment.max_epochs, 
+            grace_period=10, 
+            reduction_factor=2,
+            brackets=3,
+            )
+        return scheduler
 
     def _define_tune_config(self):
         tune_config = tune.TuneConfig(
-            scheduler=self._define_scheduler(),
+            metric="val_loss",
+            mode="min",
             num_samples=self.config.experiment.num_samples,
+            scheduler=self._define_scheduler(),
         )
         return tune_config
-
+    
+    def _define_scaling_config(self):
+        scaling_config = ScalingConfig(
+            num_workers=self.config.experiment.num_workers,
+            use_gpu=True,
+            resources_per_worker={
+                "CPU": 6/self.config.experiment.num_workers, 
+                "GPU": 1/self.config.experiment.num_workers
+                },
+        )
+        return scaling_config
     def _define_run_config(self):
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
-        run_config = train.RunConfig(
+        run_config = RunConfig(
             name=f"{self.config.model.model_name}_tune_runs_{current_time}",
-            checkpoint_config=train.CheckpointConfig(
-                num_to_keep=10,
+            checkpoint_config=CheckpointConfig(
+                num_to_keep=2,
                 checkpoint_score_attribute="val_loss",
                 checkpoint_score_order="min",
             ),
@@ -90,20 +77,67 @@ class RayTuner:
             verbose=1,
         )
         return run_config
+    def _define_pltrainer(self):
+        if self.config.experiment.ddp:
+            trainer = Trainer(
+                max_epochs=self.config.experiment.max_epochs,
+                devices='auto',
+                accelerator='auto',
+                strategy=RayDDPStrategy(),
+                callbacks=[RayTrainReportCallback()],
+                plugins=[RayLightningEnvironment()],
+                enable_progress_bar=False,
+                )
+            
+            trainer = prepare_trainer(trainer)
+        else:
+            trainer = Trainer(
+                max_epochs=self.config.experiment.max_epochs,
+                devices=self.config.experiment.num_gpus,
+                accelerator='auto',
+                strategy='auto',
+                callbacks=[RayTrainReportCallback()],
+                enable_checkpointing=False,
+                enable_progress_bar=False,
+                )
+
+        return trainer
+
+    def _train_func(self, config_dict): # TODO: Clean up nested dict since it is now method
+        def flatten_to_nested(flattened_dict):
+            # transforms the dict of the form {key}_{subkey}:value to nested dict.
+            nested_dict = {'dataset': {}, 'model': {}, 'experiment': {}}
+            expected_keys = ['dataset', 'model', 'experiment']
+            for key, value in flattened_dict.items():
+                if "_" in key:
+                    parts = key.split("_")
+                    subkey = '_'.join(parts[1:])
+                    if parts[0] in expected_keys:
+                        nested_dict[parts[0]][subkey] = value
+                    else:
+                        nested_dict[key] = value
+                else:
+                    nested_dict[key] = value
+            return nested_dict
+        
+        config_dict = flatten_to_nested(config_dict)
+        # Create the dataloaders
+        train_loader, val_loader = get_dataloaders(
+            data_path=self.config.dataset.data_path, 
+            batch_size=config_dict['batch_size'],
+            num_workers=2
+            )
+        model = LightningModule(config_dict)
+
+        trainer = self._define_pltrainer()
+        
+        trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
     def tune_and_train(self):
-        param_space = self.config.to_nested_dict2()
         tuner = tune.Tuner(
-            tune.with_resources(
-                train_func, 
-                resources={
-                    "cpu": 6/self.config.experiment.num_samples, 
-                    "gpu": 1/self.config.experiment.num_samples
-                    }
-                ), 
-            param_space=param_space,  # Hyperparameter search space
+            self.ray_trainer, 
+            param_space={"train_loop_config": self.config.search_space},  # Hyperparameter search space
             tune_config=self._define_tune_config(),  # Tuner configuration
-            run_config=self._define_run_config(),  # Run environment configuration
-        )
+            )
         result_grid = tuner.fit() ## Actual training happens here
         return result_grid
