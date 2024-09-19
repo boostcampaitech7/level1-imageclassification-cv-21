@@ -43,12 +43,8 @@ class Config:
         self.training = TrainingConfig()
         self.dataset = DatasetConfig()
         self.experiment = ExperimentConfig()
-
-        self.search_space = {
-            'batch_size': self.training.batch_size,
-            'lr': self.training.lr,
-            'weight_decay': self.training.weight_decay,
-        }
+        
+        self.search_space = vars(self.training)
     
     
     def flatten_to_dict(self):
