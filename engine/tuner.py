@@ -37,9 +37,9 @@ class RayTuner:
     def _define_scheduler(self):
         scheduler = ASHAScheduler(
             max_t=self.config.experiment.max_epochs, 
-            grace_period=10, 
-            reduction_factor=2,
-            brackets=3,
+            grace_period=self.config.experiment.grace_period, 
+            reduction_factor=self.config.experiment.reduction_factor,
+            brackets=self.config.experiment.brackets,
             )
         return scheduler
 
