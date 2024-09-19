@@ -106,8 +106,9 @@ class RayTuner:
         # Create the dataloaders
         train_loader, val_loader = get_dataloaders(
             data_path=self.config.dataset.data_path, 
+            transform_type=self.config.dataset.transform_type,
             batch_size=hparams['batch_size'],
-            num_workers=2
+            num_workers=self.config.dataset.num_workers
             )
         model = LightningModule(hparams, config=self.config.model)
 
