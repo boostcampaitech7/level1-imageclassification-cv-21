@@ -90,7 +90,7 @@ class LightningModule(pl.LightningModule):
         Returns:
             torch.optim.Adam: Adam optimizer for the model.
         """
-        optimizer = torch.optim.Adam(
+        optimizer = torch.optim.AdamW(
             self.model.parameters(), 
             lr=self.hparams.lr, 
             weight_decay=self.hparams.weight_decay
