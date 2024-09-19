@@ -109,7 +109,7 @@ class RayTuner:
             batch_size=hparams['batch_size'],
             num_workers=2
             )
-        model = LightningModule(hparams, self.config.model)
+        model = LightningModule(hparams, config=self.config.model)
 
         trainer = self._define_pltrainer()
         

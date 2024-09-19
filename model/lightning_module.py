@@ -7,7 +7,7 @@ from config import ModelConfig
 
 # Define the LightningModule
 class LightningModule(pl.LightningModule):
-    def __init__(self, hparams, config: ModelConfig):
+    def __init__(self, hparams, config: ModelConfig = None):
         """
         Initializes the LightningModule.
 
@@ -15,12 +15,11 @@ class LightningModule(pl.LightningModule):
             hparams (dict): Hyperparameters for the model.
         """
         super().__init__()
-        self.save_hyperparameters(hparams, config)
-        self.model = create_model(
-            config.model_name,
-            **{key: value for key, value in vars(config).items() if key != 'model_name'}
-            )
         
+        model_hparams = vars(config) if config else {}
+        hparams = {**hparams, **model_hparams}
+        self.save_hyperparameters(hparams)
+        self.model = create_model(**model_hparams)
     def forward(self, x):
         """
         Defines the forward pass of the model.
