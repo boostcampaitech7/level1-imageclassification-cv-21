@@ -40,6 +40,9 @@ class ExperimentConfig:
         self.reduction_factor=2
         self.brackets=3
 
+        # Manual checkpoint load and test option
+        self.checkpoint_path = None
+
 
 class Config:
     """Main configuration class."""
@@ -52,11 +55,15 @@ class Config:
         self.search_space = vars(self.training)
     
     
-    def flatten_to_dict(self):
-        flattened_dict = {}
-        for key, value in vars(self).items():
-            if key != 'search_space' and key != 'training' and hasattr(value, '__dict__'):
-                for subkey, subvalue in vars(value).items():
-                    flattened_dict[f"{key}_{subkey}"] = subvalue
-        return flattened_dict
+    def update_from_args(self, args):
+        def update_config(obj, args):
+            for key, value in vars(obj).items():
+                if hasattr(value, '__dict__'):
+                    update_config(value, args)
+                else:
+                    for arg_key, arg_value in vars(args).items():
+                        if key == arg_key.replace("-", "_") and arg_value is not None:
+                            setattr(obj, key, arg_value)
+
+        update_config(self, args)
         
