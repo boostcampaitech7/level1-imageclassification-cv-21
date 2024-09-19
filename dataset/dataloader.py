@@ -1,8 +1,13 @@
 # dataset/dataloader.py
+import os
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, SubsetRandomSampler
 
 from .dataset import CustomDataset
 from .transforms import get_transforms
+
 
 def get_dataloaders(data_path='/home/data/', batch_size=32, num_workers=1):
     """
@@ -16,32 +21,37 @@ def get_dataloaders(data_path='/home/data/', batch_size=32, num_workers=1):
     Returns:
         Tuple[DataLoader, DataLoader]: Train and validation data loaders.
     """
+    data_path = os.path.join(data_path, 'train')
+    info_df = pd.read_csv(os.path.join(data_path, 'train.csv'))
 
-    transform = get_transforms(mode='train')
-    full_dataset = CustomDataset(data_path, mode='train', transform=transform)
+    train_df, val_df = train_test_split(
+        info_df, 
+        test_size=0.2,
+        stratify=info_df['target']
+        )
 
-    # Create indices for the train and validation sets
-    indices = list(range(len(full_dataset)))
-    split = int(0.8 * len(indices))
-    train_indices = indices[:split]
-    val_indices = indices[split:]
+    train_transform = get_transforms(mode='train')
+    train_dataset = CustomDataset(data_path, train_df, transform=train_transform)
 
     # Create val dataset with validation transforms
-    val_dataset = CustomDataset(data_path, mode='train', transform=transform)
+    val_transform = get_transforms(mode='basic')
+    val_dataset = CustomDataset(data_path, val_df, transform=val_transform)
 
     # Create samplers for the train and validation sets
-    train_sampler = SubsetRandomSampler(train_indices)
-    val_sampler = SubsetRandomSampler(val_indices)
+    # train_sampler = SubsetRandomSampler(train_indices)
+    # val_sampler = SubsetRandomSampler(val_indices)
 
     # Use DataCollator to create batches for both datasets
-    train_loader = DataLoader(full_dataset,
+    train_loader = DataLoader(train_dataset,
                                 batch_size=batch_size,
-                                sampler=train_sampler,
+                                # sampler=train_sampler,
+                                shuffle=True,
                                 num_workers=num_workers,
                                 pin_memory=True)
     val_loader = DataLoader(val_dataset,
                               batch_size=batch_size,
-                              sampler=val_sampler,
+                            #   sampler=val_sampler,
+                              shuffle=False,
                               num_workers=num_workers,
                              pin_memory=True)
     return train_loader, val_loader

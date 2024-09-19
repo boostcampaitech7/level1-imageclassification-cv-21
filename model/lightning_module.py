@@ -3,10 +3,11 @@ import lightning as pl
 import torch
 
 from .model_factory import create_model
+from config import ModelConfig
 
 # Define the LightningModule
 class LightningModule(pl.LightningModule):
-    def __init__(self, config_dict):
+    def __init__(self, hparams, config: ModelConfig):
         """
         Initializes the LightningModule.
 
@@ -14,10 +15,10 @@ class LightningModule(pl.LightningModule):
             hparams (dict): Hyperparameters for the model.
         """
         super().__init__()
-        self.save_hyperparameters(config_dict)
+        self.save_hyperparameters(hparams, config)
         self.model = create_model(
-            config_dict['model']['model_name'],
-            **{key: value for key, value in config_dict['model'].items() if key != 'model_name'}
+            config.model_name,
+            **{key: value for key, value in vars(config).items() if key != 'model_name'}
             )
         
     def forward(self, x):
