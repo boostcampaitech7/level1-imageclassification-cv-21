@@ -3,10 +3,11 @@ import lightning as pl
 import torch
 
 from .model_factory import create_model
+from config import ModelConfig
 
 # Define the LightningModule
 class LightningModule(pl.LightningModule):
-    def __init__(self, config_dict):
+    def __init__(self, hparams, config: ModelConfig = None):
         """
         Initializes the LightningModule.
 
@@ -14,12 +15,11 @@ class LightningModule(pl.LightningModule):
             hparams (dict): Hyperparameters for the model.
         """
         super().__init__()
-        self.save_hyperparameters(config_dict)
-        self.model = create_model(
-            config_dict['model']['model_name'],
-            **{key: value for key, value in config_dict['model'].items() if key != 'model_name'}
-            )
         
+        model_hparams = vars(config) if config else {}
+        hparams = {**hparams, **model_hparams}
+        self.save_hyperparameters(hparams)
+        self.model = create_model(**model_hparams)
     def forward(self, x):
         """
         Defines the forward pass of the model.
@@ -90,5 +90,16 @@ class LightningModule(pl.LightningModule):
         Returns:
             torch.optim.Adam: Adam optimizer for the model.
         """
-        return torch.optim.Adam(self.model.parameters(), self.hparams.lr)
+        optimizer = torch.optim.AdamW(
+            self.model.parameters(), 
+            lr=self.hparams.lr, 
+            weight_decay=self.hparams.weight_decay
+            )
+        
+        scheduler = torch.optim.lr_scheduler.StepLR(
+            optimizer, 
+            step_size = self.trainer.estimated_stepping_batches * 2, 
+            gamma=0.1
+            )
+        return [optimizer], [scheduler]
 

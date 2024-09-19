@@ -22,7 +22,6 @@ class RayTuner:
         # Define a TorchTrainer without hyper-parameters for Tuner
         self.ray_trainer = TorchTrainer(
             self._train_func,
-            train_loop_config=self.config.flatten_to_dict(),
             scaling_config=self._define_scaling_config(),
             run_config=self._define_run_config(),
         )
@@ -38,9 +37,9 @@ class RayTuner:
     def _define_scheduler(self):
         scheduler = ASHAScheduler(
             max_t=self.config.experiment.max_epochs, 
-            grace_period=10, 
-            reduction_factor=2,
-            brackets=3,
+            grace_period=self.config.experiment.grace_period, 
+            reduction_factor=self.config.experiment.reduction_factor,
+            brackets=self.config.experiment.brackets,
             )
         return scheduler
 
@@ -55,8 +54,9 @@ class RayTuner:
     
     def _define_scaling_config(self):
         scaling_config = ScalingConfig(
-            num_workers=self.config.experiment.num_workers,
+            num_workers=1,
             use_gpu=True,
+            trainer_resources={"CPU": 0},
             resources_per_worker={
                 "CPU": 6/self.config.experiment.num_workers, 
                 "GPU": 1/self.config.experiment.num_workers
@@ -103,31 +103,15 @@ class RayTuner:
 
         return trainer
 
-    def _train_func(self, config_dict): # TODO: Clean up nested dict since it is now method
-        def flatten_to_nested(flattened_dict):
-            # transforms the dict of the form {key}_{subkey}:value to nested dict.
-            nested_dict = {'dataset': {}, 'model': {}, 'experiment': {}}
-            expected_keys = ['dataset', 'model', 'experiment']
-            for key, value in flattened_dict.items():
-                if "_" in key:
-                    parts = key.split("_")
-                    subkey = '_'.join(parts[1:])
-                    if parts[0] in expected_keys:
-                        nested_dict[parts[0]][subkey] = value
-                    else:
-                        nested_dict[key] = value
-                else:
-                    nested_dict[key] = value
-            return nested_dict
-        
-        config_dict = flatten_to_nested(config_dict)
+    def _train_func(self, hparams): 
         # Create the dataloaders
         train_loader, val_loader = get_dataloaders(
             data_path=self.config.dataset.data_path, 
-            batch_size=config_dict['batch_size'],
-            num_workers=2
+            transform_type=self.config.dataset.transform_type,
+            batch_size=hparams['batch_size'],
+            num_workers=self.config.dataset.num_workers
             )
-        model = LightningModule(config_dict)
+        model = LightningModule(hparams, config=self.config.model)
 
         trainer = self._define_pltrainer()
         

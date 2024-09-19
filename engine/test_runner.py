@@ -6,7 +6,12 @@ from model import LightningModule
 
 def run_test(config, ckpt_dir):
     # Call the test loader
-    test_loader = get_test_loader(data_path=config.dataset.data_path, batch_size=64, num_workers=6)
+    test_loader = get_test_loader(
+        data_path=config.dataset.data_path, 
+        transform_type=config.dataset.transform_type, 
+        batch_size=64, 
+        num_workers=6
+        )
     
     # Define the trainer for testing
     pred_callback = PredictionCallback(f"{config.dataset.data_path}/test.csv", ckpt_dir, config.model.model_name)

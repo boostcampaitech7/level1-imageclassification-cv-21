@@ -4,6 +4,7 @@ class ModelConfig:
     """Model-related configuration."""
     def __init__(self):
         self.model_name = "ResNet18"  # Baseline model
+        self.pretrained = False
         # self.num_layers = ~
         # self.num_heads = ~
 
@@ -21,7 +22,8 @@ class DatasetConfig:
     """Dataset-related configuration."""
     def __init__(self):
         self.data_path = "/data/ephemeral/home/data/"
-        # self.transform_mode = 'albumentation'
+        self.transform_type = 'albumentations'
+        self.num_workers = 3
 
 
 class ExperimentConfig:
@@ -29,11 +31,18 @@ class ExperimentConfig:
     def __init__(self):
         self.save_dir = "/data/ephemeral/home/logs/"
         self.num_gpus = 1
-        self.max_epochs = 100
-        self.num_workers = 1  # number of workers in scheduling
+        self.num_workers = 6  # number of workers in scheduling
         self.num_samples = 10  # number of workers in ray tune
-        # self.checkpoint_interval = 5  # number of intervals to save checkpoint in pbt.
         self.ddp = False
+        
+        # Configs related with ASHA scheduler
+        self.max_epochs = 100
+        self.grace_period=10
+        self.reduction_factor=2
+        self.brackets=3
+
+        # Manual checkpoint load and test option
+        self.checkpoint_path = None
 
 
 class Config:
@@ -43,19 +52,19 @@ class Config:
         self.training = TrainingConfig()
         self.dataset = DatasetConfig()
         self.experiment = ExperimentConfig()
+        
+        self.search_space = vars(self.training)
+    
+    
+    def update_from_args(self, args):
+        def update_config(obj, args):
+            for key, value in vars(obj).items():
+                if hasattr(value, '__dict__'):
+                    update_config(value, args)
+                else:
+                    for arg_key, arg_value in vars(args).items():
+                        if key == arg_key.replace("-", "_") and arg_value is not None:
+                            setattr(obj, key, arg_value)
 
-        self.search_space = {
-            'batch_size': self.training.batch_size,
-            'lr': self.training.lr,
-            'weight_decay': self.training.weight_decay,
-        }
-    
-    
-    def flatten_to_dict(self):
-        flattened_dict = {}
-        for key, value in vars(self).items():
-            if key != 'search_space' and key != 'training' and hasattr(value, '__dict__'):
-                for subkey, subvalue in vars(value).items():
-                    flattened_dict[f"{key}_{subkey}"] = subvalue
-        return flattened_dict
+        update_config(self, args)
         
