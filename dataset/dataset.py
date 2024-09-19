@@ -1,7 +1,6 @@
 import os
 
 import cv2
-from PIL import Image
 from torch.utils.data import Dataset
 
 
@@ -29,7 +28,6 @@ class CustomDataset(Dataset):
     def _load_image(self, image_path):
         image = cv2.imread(image_path, cv2.IMREAD_COLOR)  # 이미지를 BGR 컬러 포맷의 numpy array로 읽어옵니다.
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # BGR 포맷을 RGB 포맷으로 변환합니다.
-        image = Image.fromarray(image)
         return image
     
     def _apply_transform(self, image):

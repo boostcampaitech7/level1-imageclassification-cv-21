@@ -21,7 +21,7 @@ class DatasetConfig:
     """Dataset-related configuration."""
     def __init__(self):
         self.data_path = "/data/ephemeral/home/data/"
-        self.transform_type = 'albumentation'
+        self.transform_type = 'albumentations'
         self.num_workers = 3
 
 
