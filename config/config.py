@@ -31,9 +31,8 @@ class ExperimentConfig:
         self.save_dir = "/data/ephemeral/home/logs/"
         self.num_gpus = 1
         self.max_epochs = 100
-        self.num_workers = 1  # number of workers in scheduling
+        self.num_workers = 6  # number of workers in scheduling
         self.num_samples = 10  # number of workers in ray tune
-        # self.checkpoint_interval = 5  # number of intervals to save checkpoint in pbt.
         self.ddp = False
 
         self.grace_period=10

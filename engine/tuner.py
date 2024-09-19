@@ -54,8 +54,9 @@ class RayTuner:
     
     def _define_scaling_config(self):
         scaling_config = ScalingConfig(
-            num_workers=self.config.experiment.num_workers,
+            num_workers=1,
             use_gpu=True,
+            trainer_resources={"CPU": 0},
             resources_per_worker={
                 "CPU": 6/self.config.experiment.num_workers, 
                 "GPU": 1/self.config.experiment.num_workers
