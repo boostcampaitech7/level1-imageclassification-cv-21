@@ -38,8 +38,8 @@ class RayTuner:
     def _define_scheduler(self):
         scheduler = ASHAScheduler(
             max_t=self.config.experiment.max_epochs, 
-            grace_period=1, 
-            reduction_factor=3,
+            grace_period=10, 
+            reduction_factor=2,
             brackets=3,
             )
         return scheduler
@@ -68,7 +68,7 @@ class RayTuner:
         run_config = RunConfig(
             name=f"{self.config.model.model_name}_tune_runs_{current_time}",
             checkpoint_config=CheckpointConfig(
-                num_to_keep=3,
+                num_to_keep=2,
                 checkpoint_score_attribute="val_loss",
                 checkpoint_score_order="min",
             ),
