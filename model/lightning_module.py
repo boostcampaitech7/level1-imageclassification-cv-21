@@ -90,7 +90,12 @@ class LightningModule(pl.LightningModule):
         Returns:
             torch.optim.Adam: Adam optimizer for the model.
         """
-        optimizer = torch.optim.Adam(self.model.parameters(), self.hparams.lr)
+        optimizer = torch.optim.Adam(
+            self.model.parameters(), 
+            lr=self.hparams.lr, 
+            weight_decay=self.hparams.weight_decay
+            )
+        
         scheduler = torch.optim.lr_scheduler.StepLR(
             optimizer, 
             step_size = self.trainer.estimated_stepping_batches * 2, 

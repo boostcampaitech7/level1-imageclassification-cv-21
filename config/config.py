@@ -30,11 +30,12 @@ class ExperimentConfig:
     def __init__(self):
         self.save_dir = "/data/ephemeral/home/logs/"
         self.num_gpus = 1
-        self.max_epochs = 100
         self.num_workers = 6  # number of workers in scheduling
         self.num_samples = 10  # number of workers in ray tune
         self.ddp = False
-
+        
+        # Configs related with ASHA scheduler
+        self.max_epochs = 100
         self.grace_period=10
         self.reduction_factor=2
         self.brackets=3
