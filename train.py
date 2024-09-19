@@ -36,6 +36,7 @@ if __name__ == "__main__":
     parser.add_argument('--model-name', type=str, help='Name of the model to use.')
     parser.add_argument('--num-gpus', type=int, help='Name of the model to use.')
     parser.add_argument('--smoke-test', action='store_true', help='Perform a small trial to test the setup.')
+    parser.add_argument('--pretrained', action='store_true', help='Whether to use pretrained model or not')
     parser.add_argument('--ddp', action='store_true', help='Perform the distributed data parallel. Only use when you have multiple gpus.')
     parser.add_argument('--checkpoint-path', type=str, help='Path to the checkpoint to load and test.')
     args = parser.parse_args()

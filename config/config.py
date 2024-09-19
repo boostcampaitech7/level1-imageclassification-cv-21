@@ -4,6 +4,7 @@ class ModelConfig:
     """Model-related configuration."""
     def __init__(self):
         self.model_name = "ResNet18"  # Baseline model
+        self.pretrained = False
         # self.num_layers = ~
         # self.num_heads = ~
 
