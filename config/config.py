@@ -35,9 +35,9 @@ class ExperimentConfig:
         # self.checkpoint_interval = 5  # number of intervals to save checkpoint in pbt.
         self.ddp = False
 
-        self.grace_period=10, 
-        self.reduction_factor=2,
-        self.brackets=3,
+        self.grace_period=10
+        self.reduction_factor=2
+        self.brackets=3
 
 
 class Config:

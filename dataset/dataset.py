@@ -17,6 +17,7 @@ class CustomDataset(Dataset):
         """
 
         self.data_path = data_path
+        self.info_df = info_df
         self.is_inference = is_inference
         self.transform = transform
         self.image_paths = self.info_df['image_path'].tolist()

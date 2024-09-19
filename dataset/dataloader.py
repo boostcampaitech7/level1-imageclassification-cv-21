@@ -21,8 +21,8 @@ def get_dataloaders(data_path='/home/data/', batch_size=32, num_workers=1):
     Returns:
         Tuple[DataLoader, DataLoader]: Train and validation data loaders.
     """
-    data_path = os.path.join(data_path, 'train')
     info_df = pd.read_csv(os.path.join(data_path, 'train.csv'))
+    data_path = os.path.join(data_path, 'train')
 
     train_df, val_df = train_test_split(
         info_df, 
@@ -69,8 +69,10 @@ def get_test_loader(data_path='/home/data/', batch_size=32, num_workers=1):
     Returns:
         DataLoader: Test data loader.
     """
+    test_df = pd.read_csv(os.path.join(data_path, 'test.csv'))
+    data_path = os.path.join(data_path, 'test')
     transform = get_transforms(mode='test')
-    test_dataset = CustomDataset(data_path, mode='test', transform=transform)
+    test_dataset = CustomDataset(data_path, test_df, transform=transform, is_inference=True)
     test_loader = DataLoader(test_dataset,
                                batch_size=batch_size,
                                num_workers=num_workers,
