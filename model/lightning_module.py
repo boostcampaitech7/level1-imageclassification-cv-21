@@ -5,6 +5,7 @@ import torch
 from .model_factory import create_model
 from config import ModelConfig
 
+
 # 라이트닝 모듈 정의
 class LightningModule(pl.LightningModule):
     def __init__(self, hparams, config: ModelConfig = None):
@@ -15,11 +16,12 @@ class LightningModule(pl.LightningModule):
             hparams (dict): 모델 하이퍼 파라미터.
         """
         super().__init__()
-        
+
         model_hparams = vars(config) if config else {}
         hparams = {**hparams, **model_hparams}
         self.save_hyperparameters(hparams)
         self.model = create_model(**model_hparams)
+
     def forward(self, x):
         """
         모델의 순전파 정의.
@@ -46,8 +48,8 @@ class LightningModule(pl.LightningModule):
         x, y = train_batch
         output = self.forward(x)
         loss = torch.nn.CrossEntropyLoss()(output, y)
-        self.log('train_loss', loss, sync_dist=True)
-        return {'loss': loss}
+        self.log("train_loss", loss, sync_dist=True)
+        return {"loss": loss}
 
     def validation_step(self, val_batch, batch_idx):
         """
@@ -65,8 +67,8 @@ class LightningModule(pl.LightningModule):
         loss = torch.nn.CrossEntropyLoss()(output, y)
         _, predicted = torch.max(output, 1)
         accuracy = (predicted == y).sum().item() / len(x)
-        self.log('val_loss', loss, sync_dist=True)
-        self.log('val_acc', accuracy, sync_dist=True)
+        self.log("val_loss", loss, sync_dist=True)
+        self.log("val_acc", accuracy, sync_dist=True)
 
     def test_step(self, test_batch, batch_idx):
         """
@@ -92,15 +94,12 @@ class LightningModule(pl.LightningModule):
             torch.optim.Adam: 모델의 Adam 최적화 함수.
         """
         optimizer = torch.optim.AdamW(
-            self.model.parameters(), 
-            lr=self.hparams.lr, 
-            weight_decay=self.hparams.weight_decay
-            )
-        
-        scheduler = torch.optim.lr_scheduler.StepLR(
-            optimizer, 
-            step_size = self.trainer.estimated_stepping_batches * 2, 
-            gamma=0.1
-            )
-        return [optimizer], [scheduler]
+            self.model.parameters(),
+            lr=self.hparams.lr,
+            weight_decay=self.hparams.weight_decay,
+        )
 
+        scheduler = torch.optim.lr_scheduler.StepLR(
+            optimizer, step_size=self.trainer.estimated_stepping_batches * 2, gamma=0.1
+        )
+        return [optimizer], [scheduler]

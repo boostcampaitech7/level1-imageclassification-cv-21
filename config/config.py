@@ -1,10 +1,12 @@
 # 필요한 라이브러리를 가져옵니다
 from ray import tune
 
+
 class ModelConfig:
     """
     이 클래스는 모델과 관련된 설정을 저장합니다.
     """
+
     def __init__(self):
         # 사용하는 모델의 유형입니다 (예: ResNet18, ResNet50 등)
         self.model_name = "ResNet18"  # 기본 모델
@@ -28,27 +30,26 @@ class TrainingConfig:
         self.lr = tune.loguniform(0.001, 0.1)
         # 하이퍼파라미터 튜닝에 사용할 가중치 감소 범위입니다
         self.weight_decay = tune.loguniform(0.001, 0.1)
-        
 
 
 class DatasetConfig:
     """
     이 클래스는 데이터셋과 관련된 설정을 저장합니다.
     """
+
     def __init__(self):
         # 데이터셋 경로입니다
         self.data_path = "/data/ephemeral/home/data/"
         # 데이터 변환 유형입니다 (예: torchvision, albumentations 등)
-        self.transform_type = 'albumentations'
+        self.transform_type = "albumentations"
         # 데이터 로딩에 사용할 워커의 수입니다
         self.num_workers = 3
-
 
 
 class ExperimentConfig:
     """
     실험 관련 설정입니다.
-    
+
     이 클래스는 실험과 관련된 설정을 저장합니다.
     """
 
@@ -81,9 +82,10 @@ class ExperimentConfig:
 class Config:
     """
     메인 설정 클래스입니다.
-    
+
     이 클래스는 실험의 전체 설정을 저장합니다.
     """
+
     def __init__(self):
         # 설정 클래스를 초기화합니다
         self.model = ModelConfig()
@@ -94,7 +96,6 @@ class Config:
         # 하이퍼파라미터 튜닝의 검색 공간을 정의합니다
         self.search_space = vars(self.training)
 
-
     def update_from_args(self, args):
         """
         커맨드 라인 args로 config를 재귀함수를 사용하여 업데이트합니다.
@@ -102,13 +103,14 @@ class Config:
         인수:
         args: 명령 줄 인수입니다.
         """
+
         def update_config(obj, args):
             """
             설정을 업데이트합니다.
             """
             for key, value in vars(obj).items():
                 # 객체에 dict 속성이 존재하는 경우 이를 사용
-                if hasattr(value, '__dict__'):
+                if hasattr(value, "__dict__"):
                     update_config(value, args)
                 else:
                     # 속성에 커맨드라인 인자가 있는 경우 모든 속성 value를 업데이트
@@ -117,4 +119,3 @@ class Config:
                             setattr(obj, key, arg_value)
 
         update_config(self, args)
-
