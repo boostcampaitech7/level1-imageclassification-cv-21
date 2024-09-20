@@ -21,7 +21,7 @@
 #### 새로운 Conda 환경 만들기 및 종속성 설치
 새로운 Conda 환경을 만들고 필요한 종속성을 설치하려면 다음 명령어를 사용합니다.
 
-```conda env create -n myenv python=3.10 --file requirements.yml```
+```conda env create -n myenv --file requirements.yml```
 
 이 명령어는 새로운 Conda 환경 'myenv'를 만들고 requirements.yml 파일에 지정된 모든 종속성을 설치합니다. CUDA, PyTorch, Torchvision, PyTorch-Lightning, Ray 및 WandB가 포함됩니다.
 
