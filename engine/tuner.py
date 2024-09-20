@@ -18,8 +18,14 @@ from ray.train.torch import TorchTrainer
 
 class RayTuner:
     def __init__(self, config):
+        """
+        RayTuner 초기화
+
+        Args:
+            config: 모델 및 실험 설정이 포함된 configuration 객체
+        """
         self.config = config  # config is Config class here consisting of 4 subclass config
-        # Define a TorchTrainer without hyper-parameters for Tuner
+        # Hyperparameter 튜닝을 위한 TorchTrainer 정의
         self.ray_trainer = TorchTrainer(
             self._train_func,
             scaling_config=self._define_scaling_config(),
@@ -104,17 +110,23 @@ class RayTuner:
         return trainer
 
     def _train_func(self, hparams): 
-        # Create the dataloaders
+        """
+        모델 학습을 위한 함수를 정의합니다.
+        """
+        # 데이터 로더 생성
         train_loader, val_loader = get_dataloaders(
             data_path=self.config.dataset.data_path, 
             transform_type=self.config.dataset.transform_type,
             batch_size=hparams['batch_size'],
             num_workers=self.config.dataset.num_workers
             )
+        # 모델 생성
         model = LightningModule(hparams, config=self.config.model)
 
+        # PyTorch Lightning Trainer 정의
         trainer = self._define_pltrainer()
         
+        # 모델 학습 및 평가
         trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
     def tune_and_train(self):

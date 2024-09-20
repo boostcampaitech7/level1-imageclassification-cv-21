@@ -1,18 +1,18 @@
-# imports
+# 필요한 import 수행
 import lightning as pl
 import torch
 
 from .model_factory import create_model
 from config import ModelConfig
 
-# Define the LightningModule
+# 라이트닝 모듈 정의
 class LightningModule(pl.LightningModule):
     def __init__(self, hparams, config: ModelConfig = None):
         """
-        Initializes the LightningModule.
+        라이트닝 모듈 초기화.
 
         Args:
-            hparams (dict): Hyperparameters for the model.
+            hparams (dict): 모델 하이퍼 파라미터.
         """
         super().__init__()
         
@@ -22,25 +22,26 @@ class LightningModule(pl.LightningModule):
         self.model = create_model(**model_hparams)
     def forward(self, x):
         """
-        Defines the forward pass of the model.
+        모델의 순전파 정의.
+
         Args:
-            x (torch.Tensor): Input tensor.
+            x (torch.Tensor): 입력 텐서.
 
         Returns:
-            torch.Tensor: Output tensor.
+            torch.Tensor: 출력 텐서.
         """
         return self.model(x)
 
     def training_step(self, train_batch, batch_idx):
         """
-        Defines the training step of the model.
+        모델의 훈련 스텝 정의.
 
         Args:
-            train_batch (tuple): Batch of input and output tensors.
-            batch_idx (int): Index of the batch.
+            train_batch (tuple): 입력, 출력 텐서 배치.
+            batch_idx (int): 배치 인덱스.
 
         Returns:
-            dict: Dictionary containing the loss.
+            dict: 손실값을 포함하는 딕셔너리.
         """
         x, y = train_batch
         output = self.forward(x)
@@ -50,11 +51,11 @@ class LightningModule(pl.LightningModule):
 
     def validation_step(self, val_batch, batch_idx):
         """
-        Defines the validation step of the model.
+        모델의 검증 스텝 정의.
 
         Args:
-            val_batch (tuple): Batch of input and output tensors.
-            batch_idx (int): Index of the batch.
+            val_batch (tuple): 입력, 출력 텐서 배치.
+            batch_idx (int): 배치 인덱스.
 
         Returns:
             None
@@ -69,14 +70,14 @@ class LightningModule(pl.LightningModule):
 
     def test_step(self, test_batch, batch_idx):
         """
-        Defines the prediction step of the model.
+        모델의 예측 스텝 정의.
 
         Args:
-            test_batch (tuple): Batch of input tensors.
-            batch_idx (int): Index of the batch.
+            test_batch (tuple): 입력 텐서 배치.
+            batch_idx (int): 배치 인덱스.
 
         Returns:
-            list: List of predicted class indices.
+            list: 예측된 클래스 인덱스 목록.
         """
         x = test_batch
         output = self.forward(x)
@@ -85,10 +86,10 @@ class LightningModule(pl.LightningModule):
 
     def configure_optimizers(self):
         """
-        Configures the optimizer for the model.
+        모델의 최적화 함수 정의.
 
         Returns:
-            torch.optim.Adam: Adam optimizer for the model.
+            torch.optim.Adam: 모델의 Adam 최적화 함수.
         """
         optimizer = torch.optim.AdamW(
             self.model.parameters(), 
