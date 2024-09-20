@@ -25,7 +25,7 @@ def run_test(config, ckpt_dir):
     trainer_test = Trainer(callbacks=[pred_callback], logger=False, enable_progress_bar=True,)
     
     # 체크포인트에서 모델 로드
-    best_model = LightningModule.load_from_checkpoint(f"{ckpt_dir}/checkpoint.ckpt")
+    best_model = LightningModule.load_from_checkpoint(f"{ckpt_dir}/checkpoint.ckpt", config=config.model)
     
     # 로드된 모델 테스팅 수행
     trainer_test.test(best_model, dataloaders=test_loader)
