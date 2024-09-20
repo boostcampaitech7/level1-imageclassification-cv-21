@@ -45,14 +45,14 @@ Weights & Biases 계정을 설정하고 SDK를 설치합니다. Weights & Biases
 ### 사용자 정의 설정
 대신 인수를 지정하여 기본 설정을 재정의할 수도 있습니다.
 
-```python train.py --model_name <모델_이름> --num_gpus <GPU_개수> --smoke_test```
+```python train.py --model-name <모델_이름> --num_gpus <GPU_개수> --smoke_test```
 
 - --model_name: 훈련할 모델의 이름을 지정합니다. 모델 정의를 확인하여 사용할 수 있는 모델 목록을 확인할 수 있습니다. 기본 모델은 ResNet18입니다.
 - --num_gpus: 훈련에 사용할 GPU 개수를 지정합니다. 멀티-GPU 환경에서 훈련할 때 사용합니다. 기본: 1
 - --smoke_test: (선택 사항) 훈련 스크립트가 올바르게 작동하는지 확인하기 위해 빠른 스모크 테스트를 실행하려면 이 플래그를 추가합니다. 스모크 테스트는 작은 배치 크기와 제한된 에포크 수로 훈련 스크립트를 실행합니다.
 
 예시:
-```python train.py --model_name resnet50 --num_gpus 2```
+```python train.py --model-name resnet50 --num_gpus 2```
 
 이 명령어는 ResNet-50 모델을 2개의 GPU로 훈련합니다.
 
