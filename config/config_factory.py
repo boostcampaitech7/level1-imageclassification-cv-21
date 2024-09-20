@@ -1,9 +1,10 @@
 from .config import Config
 from .custom_nn_config import CustomNNConfig
-
+from .coatnet_config import CoAtNetConfig
 CONFIG_MAP = {
     'ResNet18': Config,
     'CustomNN': CustomNNConfig,
+    'CoAtNet': CoAtNetConfig,
 }
 
 def get_config(model_name):
