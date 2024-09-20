@@ -16,6 +16,6 @@ def run_test(config, ckpt_dir):
     # Define the trainer for testing
     pred_callback = PredictionCallback(f"{config.dataset.data_path}/test.csv", ckpt_dir, config.model.model_name)
     trainer_test = Trainer(callbacks=[pred_callback], logger=False, enable_progress_bar=True,)
-    best_model = LightningModule.load_from_checkpoint(f"{ckpt_dir}/checkpoint.ckpt")
+    best_model = LightningModule.load_from_checkpoint(f"{ckpt_dir}/checkpoint.ckpt", config=config.model)
     # Conduct testing with the loaded model
     trainer_test.test(best_model, dataloaders=test_loader)
