@@ -58,7 +58,7 @@ class ExperimentConfig:
         # 학습에 사용할 GPU의 수입니다
         self.num_gpus = 1
         # 스케줄링에 사용할 워커의 수입니다
-        self.num_workers = 6
+        self.num_workers = 3
         # 하이퍼파라미터 튜닝에 사용할 트라이의 수입니다
         self.num_samples = 20
         # 분산 데이터 병렬처리 (DDP)를 사용할지 여부입니다

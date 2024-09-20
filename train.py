@@ -68,6 +68,7 @@ if __name__ == "__main__":
     if args.smoke_test:
         config.experiment.max_epochs = 1
         config.experiment.num_samples = 1
+        config.experiment.num_workers = 1
         config.training.num_gpus = 1
         config.experiment.grace_period = 1
 
