@@ -1,24 +1,43 @@
 import os
 from datetime import datetime
-from tempfile import TemporaryDirectory
 
 import numpy as np
 import pandas as pd
 from lightning.pytorch.callbacks import Callback
-from ray import train
-from ray.train import Checkpoint
 
 class PredictionCallback(Callback):
+    """
+    모델 테스팅에 필요한 콜백 함수
+
+    Args:
+        data_path (str): 테스팅 데이터 경로
+        ckpt_dir (str): 체크포인트 디렉토리
+        model_name (str): 모델 이름
+    """
     def __init__(self, data_path, ckpt_dir, model_name):
+        """
+        콜백 함수 초기화
+        """
         self.data_path = data_path
         self.ckpt_dir = ckpt_dir
         self.model_name = model_name
         self.predictions = []
 
     def on_test_batch_end(self, trainer, pl_module, outputs, *args, **kwargs):
+        """
+        테스팅 배치 종료 후 호출되는 함수
+
+        Args:
+            trainer: 트레이너 객체
+            pl_module: PyTorch Lightning 모델
+            outputs: 모델 출력
+        """
         self.predictions.extend(outputs.cpu().numpy())
 
     def on_test_end(self, *args, **kwargs):
+        """
+        테스팅 종료 후 호출되는 함수
+        """
         predictions = np.array(self.predictions)
         test_info = pd.read_csv(self.data_path)
         test_info['target'] = predictions
