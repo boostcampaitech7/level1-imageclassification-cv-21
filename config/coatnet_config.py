@@ -1,7 +1,4 @@
-from ray import tune
-
 from .config import Config
-
 
 class CoAtNetConfig(Config):
     def __init__(self):
