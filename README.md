@@ -1,5 +1,6 @@
 1. Image들을 어떤 방식으로 전처리했는가
    - 특정 image에 object이 여러개 있는 경우 -> 각각을 crop 방식으로 오려낸 후, 또다른 image로 추가
+ ![case_02](https://github.com/user-attachments/assets/978ee913-0d9f-4f19-8329-8e2a7c4fe4c7)
    - 해당 class와는 무관해보이는 image가 존재하는 경우 -> 삭제
    - Watermark, logo 등이 object의 특징을 왜곡할만한 경우 -> 흰색으로 처리 (blur)
 
