@@ -1,37 +1,43 @@
-# model/CoAtNet.py
+# 필요한 패키지 임포트
 from typing import Optional
 
 import torch
 import torch.nn as nn
 import timm
 
+# from torchvision import models
+
+
 class CoAtNet(nn.Module):
     """
-    CoAtNet model with optional additional layers or customizations.
+    추가 레이어나 사용자 정의 구현이 가능한 CoAtNet 모델.
 
-    Args:
-        num_classes (int, optional): Number of output classes. Defaults to None.
-        pretrained (bool, optional): Use pre-trained weights. Defaults to True.
+    인자:
+        num_classes (int, optional): 출력 클래스 수. 기본값은 None이다.
+        pretrained (bool, optional): 사전 학습된 가중치를 사용할지 여부. 기본값은 False이다.
     """
 
-    def __init__(self, num_classes: Optional[int] = 500, pretrained: bool = False, **kwargs):
+    def __init__(
+        self, num_classes: Optional[int] = 500, pretrained: bool = False, **kwargs
+    ):
         super(CoAtNet, self).__init__()
 
-        # Load pre-trained CoAtNet model
-        self.model = timm.create_model('coatnet_bn_0_rw_224.sw_in1k', pretrained=pretrained, num_classes=num_classes, **kwargs)
-
-        # If num_classes is provided, replace the last layer
-        # if num_classes:
-        #     self.model.head.fc = nn.Linear(768, num_classes)  # Change to correct num_features for CoAtNet
+        # 사전 학습된 CoAtNet 모델 로드
+        self.model = timm.create_model(
+            "coatnet_bn_0_rw_224.sw_in1k",
+            pretrained=pretrained,
+            num_classes=num_classes,
+            **kwargs
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass through the CoAtNet model.
+        CoAtNet 모델을 통한 포워드 패스.
 
-        Args:
-            x (torch.Tensor): Input tensor.
+        인자:
+            x (torch.Tensor): 입력 텐서.
 
-        Returns:
-            torch.Tensor: Output of the CoAtNet model.
+        반환:
+            torch.Tensor: CoAtNet 모델의 출력.
         """
         return self.model(x)
