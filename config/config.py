@@ -25,7 +25,7 @@ class TrainingConfig:
 
     def __init__(self):
         # 하이퍼파라미터 튜닝에 사용할 배치 크기 목록입니다
-        self.batch_size = [32, 64]
+        self.batch_size = tune.choice([32, 64])
         # 하이퍼파라미터 튜닝에 사용할 학습률 범위입니다
         self.lr = tune.loguniform(0.0001, 0.002)
         # 하이퍼파라미터 튜닝에 사용할 가중치 감소 범위입니다
