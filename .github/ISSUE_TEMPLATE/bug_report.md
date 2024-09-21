@@ -6,23 +6,23 @@ labels: ''
 assignees: ''
 
 ---
-## Describe the bug 
-- 
+## Describe the bug
+-
 
-## To Reproduce 
-- 
+## To Reproduce
+-
 
-## Expected behavior 
-- 
+## Expected behavior
+-
 
-## Screenshots 
-- 
+## Screenshots
+-
 
-## Additional context 
-- 
+## Additional context
+-
 
-## Possible Solution 
-- 
+## Possible Solution
+-
 
 ## Your Environment
-- 
+-

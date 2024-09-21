@@ -1,5 +1,6 @@
 import wandb
 
+
 class WandbLogger:
     def __init__(self, project_name, config=None):
         """
@@ -13,11 +14,8 @@ class WandbLogger:
         self.config = config
 
         # wandb 실행을 초기화합니다
-        self.run = wandb.init(
-            project=self.project_name,
-            config=self.config
-        )
-    
+        self.run = wandb.init(project=self.project_name, config=self.config)
+
     def log_metrics(self, metrics, step=None):
         """
         메트릭을 wandb에 기록합니다.
@@ -30,7 +28,7 @@ class WandbLogger:
             wandb.log(metrics, step=step)
         else:
             wandb.log(metrics)
-    
+
     def log_image(self, image, caption=""):
         """
         이미지를 wandb에 기록합니다.
@@ -40,7 +38,7 @@ class WandbLogger:
             caption (str, optional): 이미지 설명
         """
         wandb.log({"image": wandb.Image(image, caption=caption)})
-    
+
     def finish(self):
         """wandb 실행을 종료합니다."""
         self.run.finish()

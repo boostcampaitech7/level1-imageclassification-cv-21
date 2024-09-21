@@ -3,11 +3,8 @@ from .custom_nn_config import CustomNNConfig
 from .coatnet import CoAtNetConfig
 
 # 모델 이름과 구성 설정 클래스를 매핑하는 디렉토리
-CONFIG_MAP = {
-    'ResNet18': Config,
-    'CustomNN': CustomNNConfig,
-    'CoAtNet': CoAtNetConfig
-}
+CONFIG_MAP = {"ResNet18": Config, "CustomNN": CustomNNConfig, "CoAtNet": CoAtNetConfig}
+
 
 def get_config(model_name):
     """

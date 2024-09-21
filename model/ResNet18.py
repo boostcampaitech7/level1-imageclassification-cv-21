@@ -4,7 +4,9 @@ from typing import Optional
 import torch
 import torch.nn as nn
 import timm
+
 # from torchvision import models
+
 
 class ResNet18(nn.Module):
     """
@@ -15,11 +17,15 @@ class ResNet18(nn.Module):
         pretrained (bool, optional): 사전 학습된 가중치를 사용할지 여부. 기본값은 False이다.
     """
 
-    def __init__(self, num_classes: Optional[int] = 500, pretrained: bool = False, **kwargs):
+    def __init__(
+        self, num_classes: Optional[int] = 500, pretrained: bool = False, **kwargs
+    ):
         super(ResNet18, self).__init__()
 
         # 사전 학습된 ResNet18 모델 로드
-        self.model = timm.create_model('resnet18', pretrained=pretrained, num_classes=num_classes, **kwargs)
+        self.model = timm.create_model(
+            "resnet18", pretrained=pretrained, num_classes=num_classes, **kwargs
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """

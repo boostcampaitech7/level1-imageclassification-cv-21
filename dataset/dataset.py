@@ -19,22 +19,27 @@ class CustomDataset(Dataset):
         self.info_df = info_df
         self.is_inference = is_inference
         self.transform = transform
-        self.image_paths = self.info_df['image_path'].tolist()
+        self.image_paths = self.info_df["image_path"].tolist()
 
         if not self.is_inference:
-            self.labels = self.info_df['target'].tolist()  # Read image paths from test.csv
-        
-    
+            self.labels = self.info_df[
+                "target"
+            ].tolist()  # Read image paths from test.csv
+
     def _load_image(self, image_path):
-        image = cv2.imread(image_path, cv2.IMREAD_COLOR)  # 이미지를 BGR 컬러 포맷의 numpy array로 읽어옵니다.
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # BGR 포맷을 RGB 포맷으로 변환합니다.
+        image = cv2.imread(
+            image_path, cv2.IMREAD_COLOR
+        )  # 이미지를 BGR 컬러 포맷의 numpy array로 읽어옵니다.
+        image = cv2.cvtColor(
+            image, cv2.COLOR_BGR2RGB
+        )  # BGR 포맷을 RGB 포맷으로 변환합니다.
         return image
-    
+
     def _apply_transform(self, image):
         if self.transform:
             image = self.transform(image)
         return image
-    
+
     def __getitem__(self, index):
         """
         Returns the image and label at the specified index.
@@ -53,9 +58,8 @@ class CustomDataset(Dataset):
         if self.is_inference:
             return image
         else:
-            label = self.labels[index]           
+            label = self.labels[index]
             return image, label
 
-    
     def __len__(self):
         return len(self.image_paths)

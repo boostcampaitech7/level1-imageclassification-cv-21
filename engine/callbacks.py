@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from lightning.pytorch.callbacks import Callback
 
+
 class PredictionCallback(Callback):
     """
     모델 테스팅에 필요한 콜백 함수
@@ -14,6 +15,7 @@ class PredictionCallback(Callback):
         ckpt_dir (str): 체크포인트 디렉토리
         model_name (str): 모델 이름
     """
+
     def __init__(self, data_path, ckpt_dir, model_name):
         """
         콜백 함수 초기화
@@ -40,9 +42,11 @@ class PredictionCallback(Callback):
         """
         predictions = np.array(self.predictions)
         test_info = pd.read_csv(self.data_path)
-        test_info['target'] = predictions
+        test_info["target"] = predictions
         test_info = test_info.reset_index().rename(columns={"index": "ID"})
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
-        file_name = os.path.join(self.ckpt_dir, f"{self.model_name}_predictions_{current_time}.csv")
-        test_info.to_csv(file_name, index=False, lineterminator='\n')
+        file_name = os.path.join(
+            self.ckpt_dir, f"{self.model_name}_predictions_{current_time}.csv"
+        )
+        test_info.to_csv(file_name, index=False, lineterminator="\n")
         print(f"Output csv file successfully saved in {file_name}!!")
