@@ -11,7 +11,7 @@ class ModelConfig:
         # 사용하는 모델의 유형입니다 (예: ResNet18, ResNet50 등)
         self.model_name = "ResNet18"  # 기본 모델
         # 모델이 미리 학습되어 있는지 여부입니다
-        self.pretrained = False
+        self.pretrained = True
         # 모델의 레이어 수 (현재 사용하지 않음)
         # self.num_layers = ~
         # 모델의 어텐션 헤드의 수 (현재 사용하지 않음)
@@ -25,11 +25,11 @@ class TrainingConfig:
 
     def __init__(self):
         # 하이퍼파라미터 튜닝에 사용할 배치 크기 목록입니다
-        self.batch_size = 36
+        self.batch_size = [32, 64]
         # 하이퍼파라미터 튜닝에 사용할 학습률 범위입니다
-        self.lr = tune.loguniform(0.0005, 0.002)
+        self.lr = tune.loguniform(0.0001, 0.002)
         # 하이퍼파라미터 튜닝에 사용할 가중치 감소 범위입니다
-        self.weight_decay = tune.loguniform(0.001, 0.1)
+        self.weight_decay = tune.uniform(0.001, 0.1)
         
 
 
