@@ -23,11 +23,11 @@ class TrainingConfig:
 
     def __init__(self):
         # 하이퍼파라미터 튜닝에 사용할 배치 크기 목록입니다
-        self.batch_size = tune.choice([32, 64, 128])
+        self.batch_size = 36
         # 하이퍼파라미터 튜닝에 사용할 학습률 범위입니다
-        self.lr = tune.loguniform(0.001, 0.1)
+        self.lr = tune.loguniform(0.0005, 0.002)
         # 하이퍼파라미터 튜닝에 사용할 가중치 감소 범위입니다
-        self.weight_decay = tune.loguniform(0.001, 0.1)
+        self.weight_decay = tune.uniform(0.01, 0.1)
         
 
 
@@ -66,7 +66,7 @@ class ExperimentConfig:
 
         # ASHA 스케줄러의 설정입니다
         # 학습의 최대 에폭입니다
-        self.max_epochs = 50
+        self.max_epochs = 100
         # 고려할 최소 에폭입니다
         self.grace_period = 10
         # 각 브래킷의 트라이의 수 감소 비율입니다
