@@ -9,9 +9,7 @@ from .dataset import CustomDataset
 from .transforms import TransformSelector
 
 
-def get_dataloaders(
-    data_path="/home/data/", transform_type="torchvision", batch_size=32, num_workers=1
-):
+def get_dataloaders(config, batch_size=32):
     """
     Returns train and validation data loaders.
 
@@ -23,14 +21,18 @@ def get_dataloaders(
     Returns:
         Tuple[DataLoader, DataLoader]: Train and validation data loaders.
     """
-    info_df = pd.read_csv(os.path.join(data_path, 'processed.csv'))
-    data_path = os.path.join(data_path, 'processed')
+    info_df = pd.read_csv(os.path.join(config.dataset.data_path, 'processed.csv'))
+    data_path = os.path.join(config.dataset.data_path, 'processed')
 
     train_df, val_df = train_test_split(
         info_df, test_size=0.2, stratify=info_df["target"]
     )
 
-    transform_selector = TransformSelector(transform_type=transform_type)
+    transform_selector = TransformSelector(
+        input_size=config.dataset.input_size, 
+        transform_type=config.dataset.transform_type,
+        aa=(config.dataset.aa if config.dataset.transform_type=="autoaugment" else None)
+        )
 
     train_transform = transform_selector.get_transforms(is_train=True)
     train_dataset = CustomDataset(data_path, train_df, transform=train_transform)
@@ -49,7 +51,7 @@ def get_dataloaders(
         batch_size=batch_size,
         # sampler=train_sampler,
         shuffle=True,
-        num_workers=num_workers,
+        num_workers=config.dataset.num_workers,
         pin_memory=True,
     )
     val_loader = DataLoader(
@@ -57,15 +59,13 @@ def get_dataloaders(
         batch_size=batch_size,
         #   sampler=val_sampler,
         shuffle=False,
-        num_workers=num_workers,
+        num_workers=config.dataset.num_workers,
         pin_memory=True,
     )
     return train_loader, val_loader
 
 
-def get_test_loader(
-    data_path="/home/data/", transform_type="torchvision", batch_size=32, num_workers=1
-):
+def get_test_loader(config):
     """
     Returns a test data loader.
 
@@ -77,19 +77,14 @@ def get_test_loader(
     Returns:
         DataLoader: Test data loader.
     """
-    transform_selector = TransformSelector(transform_type=transform_type)
-    test_df = pd.read_csv(os.path.join(data_path, "test.csv"))
-    data_path = os.path.join(data_path, "test")
+    transform_selector = TransformSelector(transform_type=config.dataset.transform_type)
+    test_df = pd.read_csv(os.path.join(config.dataset.data_path, "test.csv"))
+    data_path = os.path.join(config.dataset.data_path, "test")
     transform = transform_selector.get_transforms(is_train=False)
     test_dataset = CustomDataset(
         data_path, test_df, transform=transform, is_inference=True
     )
     test_loader = DataLoader(
-        test_dataset, batch_size=batch_size, num_workers=num_workers, pin_memory=True
+        test_dataset, batch_size=64, num_workers=6, pin_memory=True
     )
     return test_loader
-
-
-# Example usage:
-# train_loader, val_loader = get_dataloaders(data_path='/home/data/', batch_size=32, num_workers=4)
-# test_loader = get_test_loader(data_path='/home/data/', batch_size=32, num_workers=4)

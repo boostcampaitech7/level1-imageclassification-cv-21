@@ -128,10 +128,8 @@ class RayTuner:
         """
         # 데이터 로더 생성
         train_loader, val_loader = get_dataloaders(
-            data_path=self.config.dataset.data_path,
-            transform_type=self.config.dataset.transform_type,
+            self.config,
             batch_size=hparams["batch_size"],
-            num_workers=self.config.dataset.num_workers,
         )
         # 모델 생성
         model = LightningModule(hparams, config=self.config.model)
