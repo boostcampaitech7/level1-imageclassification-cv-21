@@ -2,6 +2,7 @@
 import lightning as pl
 import torch
 
+from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
 from timm.scheduler import create_scheduler_v2
 from timm.scheduler.cosine_lr import CosineLRScheduler
 
@@ -51,7 +52,10 @@ class LightningModule(pl.LightningModule):
         """
         x, y = train_batch
         output = self.forward(x)
-        loss = torch.nn.CrossEntropyLoss(label_smoothing=self.hparams.smoothing)(output, y)
+        # origin loss
+        # loss = torch.nn.CrossEntropyLoss(label_smoothing=self.hparams.smoothing)(output, y)
+        loss = LabelSmoothingCrossEntropy(smoothing=self.hparams.smoothing)(output, y)
+        
         self.log("train_loss", loss, sync_dist=True)
         return {"loss": loss}
 
