@@ -51,7 +51,7 @@ class LightningModule(pl.LightningModule):
         """
         x, y = train_batch
         output = self.forward(x)
-        loss = torch.nn.CrossEntropyLoss()(output, y)
+        loss = torch.nn.CrossEntropyLoss(LabelSmoothing=0.1)(output, y)
         self.log("train_loss", loss, sync_dist=True)
         return {"loss": loss}
 
