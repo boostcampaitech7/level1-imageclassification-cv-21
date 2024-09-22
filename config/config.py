@@ -25,11 +25,11 @@ class TrainingConfig:
 
     def __init__(self):
         # 하이퍼파라미터 튜닝에 사용할 배치 크기 목록입니다
-        self.batch_size = tune.choice([32, 64])
+        self.batch_size = tune.choice([32, 64]) # nvidia-smi로 gpu 사용량을 관찰하면서 조정해야함
         # 하이퍼파라미터 튜닝에 사용할 학습률 범위입니다
-        self.lr = tune.loguniform(0.0001, 0.002)
+        self.lr = tune.loguniform(0.0001, 0.002) # 너무 작으면 학습 진행이 안되며, 너무 크면 수렴이 느림. 
         # 하이퍼파라미터 튜닝에 사용할 가중치 감소 범위입니다
-        self.weight_decay = tune.uniform(0.001, 0.1)
+        self.weight_decay = tune.loguniform(0.001, 0.1)
 
         # 학습률 스케줄러와 관련된 파라미터입니다
         # 스케줄러 이름
@@ -85,17 +85,17 @@ class ExperimentConfig:
         # 실험 결과를 저장할 디렉토리입니다
         self.save_dir = "/data/ephemeral/home/logs/"
         # 학습에 사용할 GPU의 수입니다
-        self.num_gpus = 1
+        self.num_gpus = 1 # ddp가 불가능한 관계로 항상 1 고정
         # 스케줄링에 사용할 워커의 수입니다
-        self.num_workers = 3
+        self.num_workers = 3 # 여러 hparam 조합을 관찰할 목적이라면 3 또는 6을 추천함(메모리 부족시 3)
         # 하이퍼파라미터 튜닝에 사용할 트라이의 수입니다
-        self.num_samples = 20
+        self.num_samples = 20 # 적을수록 실험이 빨리 끝남. 서버 사양이 좋을 경우 높은 게 좋음
         # 분산 데이터 병렬처리 (DDP)를 사용할지 여부입니다
         self.ddp = False
 
         # ASHA 스케줄러의 설정입니다
         # 학습의 최대 에폭입니다
-        self.max_epochs = 100
+        self.max_epochs = 100 # Fine-tuning시 50으로도 충분할 가능성이 높음. 수렴이 느릴 경우 80~100
         # 고려할 최소 에폭입니다
         self.grace_period = 10
         # 각 브래킷의 트라이의 수 감소 비율입니다
