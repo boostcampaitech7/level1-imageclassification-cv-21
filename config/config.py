@@ -37,7 +37,7 @@ class TrainingConfig:
         # 워밍업 학습률
         self.warmup_lr = 1e-6
         # 학습률을 워밍업하는 에폭 수
-        self.warmup-epochs = 5
+        self.warmup_epochs = 5
 
         # 믹스업 관련 파라미터
         # 믹스업
