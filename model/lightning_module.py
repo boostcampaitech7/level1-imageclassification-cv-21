@@ -2,8 +2,12 @@
 import lightning as pl
 import torch
 
+from timm.scheduler import create_scheduler_v2
+from timm.scheduler.cosine_lr import CosineLRScheduler
+
 from .model_factory import create_model
 from config import ModelConfig
+
 
 
 # 라이트닝 모듈 정의
@@ -46,6 +50,8 @@ class LightningModule(pl.LightningModule):
             dict: 손실값을 포함하는 딕셔너리.
         """
         x, y = train_batch
+        # if self.hparams.mixup_fn:
+        #     x, y = self.hparams.mixup_fn(x, y)
         output = self.forward(x)
         loss = torch.nn.CrossEntropyLoss()(output, y)
         self.log("train_loss", loss, sync_dist=True)
@@ -99,7 +105,12 @@ class LightningModule(pl.LightningModule):
             weight_decay=self.hparams.weight_decay,
         )
 
-        scheduler = torch.optim.lr_scheduler.StepLR(
-            optimizer, step_size=self.trainer.estimated_stepping_batches * 2, gamma=0.1
-        )
-        return [optimizer], [scheduler]
+        # scheduler = torch.optim.lr_scheduler.StepLR(
+        #     optimizer, step_size=self.trainer.estimated_stepping_batches * 2, gamma=0.1
+        # )
+        # scheduler = create_scheduler_v2(optimizer, sched='cosine', num_epochs=20, warmup_epochs=5, warmup_lr=1e-6,)
+        scheduler = CosineLRScheduler(optimizer, t_initial=20, warmup_t=5, warmup_lr_init=1e-6)
+        return [optimizer], [{"scheduler": scheduler, "interval": "epoch"}]
+
+    def lr_scheduler_step(self, scheduler, metric):
+        scheduler.step(epoch=self.current_epoch)  # timm's scheduler need the epoch value
