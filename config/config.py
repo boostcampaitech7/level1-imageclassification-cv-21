@@ -27,7 +27,7 @@ class TrainingConfig:
         # 하이퍼파라미터 튜닝에 사용할 배치 크기 목록입니다
         self.batch_size = tune.choice([32, 64]) # nvidia-smi로 gpu 사용량을 관찰하면서 조정해야함
         # 하이퍼파라미터 튜닝에 사용할 학습률 범위입니다
-        self.lr = tune.loguniform(0.0001, 0.002) # 너무 작으면 학습 진행이 안되며, 너무 크면 수렴이 느림. 
+        self.lr = tune.loguniform(1e-5, 2e-4) # 너무 작으면 학습 진행이 안되며, 너무 크면 수렴이 느림. 
         # 하이퍼파라미터 튜닝에 사용할 가중치 감소 범위입니다
         self.weight_decay = tune.loguniform(0.001, 0.1)
 
