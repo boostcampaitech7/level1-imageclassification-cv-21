@@ -34,7 +34,8 @@ class TransformSelector:
 
         elif self.transform_type == "autoaugment":
             transform = AutoAugmentTransform(is_train=is_train, input_size=self.input_size, aa=self.aa)
-
+        else:
+            raise ValueError("Transform is not properly selected")
         return transform
 
 
