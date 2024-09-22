@@ -69,7 +69,7 @@ class RayTuner:
             use_gpu=True,
             trainer_resources={"CPU": 0},
             resources_per_worker={
-                "CPU": 2, 
+                "CPU": 6/self.config.experiment.num_workers, 
                 "GPU": 1/self.config.experiment.num_workers
                 },
         )
