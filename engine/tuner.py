@@ -5,6 +5,7 @@ from ray import train, tune
 from ray.tune.schedulers import ASHAScheduler
 from ray.air.integrations.wandb import WandbLoggerCallback
 from lightning import Trainer
+from lightning.pytorch.callbacks import LearningRateMonitor
 from ray.train import RunConfig, ScalingConfig, CheckpointConfig
 from ray.train.lightning import (
     RayDDPStrategy,
@@ -96,7 +97,10 @@ class RayTuner:
                 devices="auto",
                 accelerator="auto",
                 strategy=RayDDPStrategy(),
-                callbacks=[RayTrainReportCallback()],
+                callbacks=[
+                    RayTrainReportCallback(),
+                    LearningRateMonitor(logging_interval='epoch')
+                    ],
                 plugins=[RayLightningEnvironment()],
                 enable_progress_bar=False,
             )
@@ -108,7 +112,10 @@ class RayTuner:
                 devices=self.config.experiment.num_gpus,
                 accelerator="auto",
                 strategy="auto",
-                callbacks=[RayTrainReportCallback()],
+                callbacks=[
+                    RayTrainReportCallback(),
+                    LearningRateMonitor(logging_interval='epoch')
+                    ],
                 enable_checkpointing=False,
                 enable_progress_bar=False,
             )
