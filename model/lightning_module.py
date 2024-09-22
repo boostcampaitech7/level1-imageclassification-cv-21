@@ -114,7 +114,7 @@ class LightningModule(pl.LightningModule):
         lr_scheduler, _ = create_scheduler_v2(
             optimizer, 
             sched=self.hparams.sched, 
-            num_epochs=20, 
+            num_epochs=self.trainer.max_epochs, 
             warmup_epochs=self.hparams.warmup_epochs, 
             warmup_lr=self.hparams.warmup_lr,
             )
