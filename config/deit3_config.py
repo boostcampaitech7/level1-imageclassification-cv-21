@@ -8,8 +8,10 @@ class DeiT3Config(Config):
         super().__init__()
         self.model_name = "DeiT3"  # Override the baseline model name
         self.training.batch_size = 64
-        self.training.lr = tune.loguniform(1e-6, 2e-4)
+        self.training.lr = tune.loguniform(1e-5, 2e-4)
         self.training.weight_decay = tune.loguniform(0.0001, 0.1)
+
+        self.dataset.transform_type = 'autoaugmentation'
 
         self.experiment.num_workers = 3
         self.experiment.num_samples = 20
