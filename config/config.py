@@ -30,6 +30,21 @@ class TrainingConfig:
         self.lr = tune.loguniform(0.0001, 0.002)
         # 하이퍼파라미터 튜닝에 사용할 가중치 감소 범위입니다
         self.weight_decay = tune.uniform(0.001, 0.1)
+
+        # Augment 관련 파라미터
+        # Label smoothing 파라미터
+        self.smoothing = 0.1
+        # AutoAugment 정책 파라미터
+        self.aa = 'rand-m9-mstd0.5-inc1'
+
+        # 학습률 스케줄러와 관련된 파라미터입니다
+        # 스케줄러 이름
+        self.sched = 'cosine' # cosine, step
+        # 워밍업 학습률
+        self.warmup_lr = 1e-6
+        # 학습률을 워밍업하는 에폭 수
+        self.warmup-epochs = 5
+
         
 
 
@@ -45,6 +60,14 @@ class DatasetConfig:
         self.transform_type = "albumentations"
         # 데이터 로딩에 사용할 워커의 수입니다
         self.num_workers = 3
+
+        # 믹스업 관련 파라미터
+        # 믹스업
+        self.mixup = 0.8
+        # 컷믹스
+        self.cutmix = 1.0
+        # 믹스업과 컷믹스 동시 사용시 전환될 확률
+        self.mixup_switch_prob = 0.5
 
 
 class ExperimentConfig:
