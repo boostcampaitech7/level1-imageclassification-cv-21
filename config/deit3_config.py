@@ -11,7 +11,7 @@ class DeiT3Config(Config):
         self.training.lr = tune.loguniform(1e-5, 2e-4)
         self.training.weight_decay = tune.loguniform(0.0001, 0.1)
 
-        self.dataset.transform_type = 'autoaugmentation'
+        self.dataset.transform_type = 'autoaugment'
 
         self.experiment.num_workers = 3
         self.experiment.num_samples = 20

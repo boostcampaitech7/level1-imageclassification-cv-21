@@ -16,7 +16,7 @@ class TransformSelector:
     def __init__(self, transform_type: str, input_size: int = 224, **kwargs):
 
         # 지원하는 변환 라이브러리인지 확인
-        if transform_type in ["torchvision", "albumentations", "autoaugmentation"]:
+        if transform_type in ["torchvision", "albumentations", "autoaugment"]:
             self.transform_type = transform_type
         else:
             raise ValueError("Unknown transformation library specified.")
