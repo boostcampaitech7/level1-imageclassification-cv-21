@@ -134,3 +134,10 @@ class AutoAugmentTransform:
         else:
             # 검증/테스트용 변환: 공통 변환만 적용
             self.transform = transforms.Compose(common_transforms)
+
+    def __call__(self, image: np.ndarray) -> torch.Tensor:
+        image = Image.fromarray(image)  # numpy 배열을 PIL 이미지로 변환
+
+        transformed = self.transform(image)  # 설정된 변환을 적용
+
+        return transformed  # 변환된 이미지 반환

@@ -77,7 +77,11 @@ def get_test_loader(config):
     Returns:
         DataLoader: Test data loader.
     """
-    transform_selector = TransformSelector(transform_type=config.dataset.transform_type)
+    transform_selector = TransformSelector(
+        input_size=config.dataset.input_size, 
+        transform_type=config.dataset.transform_type,
+        aa=(config.dataset.aa if config.dataset.transform_type=="autoaugment" else None)
+        )
     test_df = pd.read_csv(os.path.join(config.dataset.data_path, "test.csv"))
     data_path = os.path.join(config.dataset.data_path, "test")
     transform = transform_selector.get_transforms(is_train=False)
