@@ -46,6 +46,8 @@ class TrainingConfig:
         self.cutmix = 1.0
         # 믹스업과 컷믹스 동시 사용시 전환될 확률
         self.mixup_switch_prob = 0.5
+        # Label smoothing 파라미터
+        self.smoothing = 0.1
 
         
 
@@ -66,8 +68,7 @@ class DatasetConfig:
         self.num_workers = 3
 
         # Augment 관련 파라미터
-        # Label smoothing 파라미터
-        self.smoothing = 0.1
+        
         # AutoAugment 정책 파라미터
         self.aa = 'rand-m9-mstd0.5-inc1'
 
