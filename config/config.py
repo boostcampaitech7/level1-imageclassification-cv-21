@@ -44,6 +44,8 @@ class TrainingConfig:
         self.mixup = 0.8
         # 컷믹스
         self.cutmix = 1.0
+        # 믹스업 확률
+        self.mixup_prob = 1.0
         # 믹스업과 컷믹스 동시 사용시 전환될 확률
         self.mixup_switch_prob = 0.5
         

@@ -2,6 +2,7 @@
 import lightning as pl
 import torch
 
+from timm.data import Mixup
 from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
 from timm.scheduler import create_scheduler_v2
 from timm.scheduler.cosine_lr import CosineLRScheduler
@@ -26,6 +27,10 @@ class LightningModule(pl.LightningModule):
         hparams = {**hparams, **model_hparams}
         self.save_hyperparameters(hparams)
         self.model = create_model(**model_hparams)
+        self.mixup_fn = Mixup(
+            mixup_alpha=self.hparams.mixup, cutmix_alpha=self.hparams.cutmix,
+            prob=self.hparams.mixup_prob, switch_prob=self.hparams.mixup_switch_prob,
+            label_smoothing=self.hparams.smoothing, num_classes=500)
 
     def forward(self, x):
         """
@@ -51,11 +56,13 @@ class LightningModule(pl.LightningModule):
             dict: 손실값을 포함하는 딕셔너리.
         """
         x, y = train_batch
+        x, y = self.mixup_fn(x, y)
         output = self.forward(x)
         # origin loss
         # loss = torch.nn.CrossEntropyLoss(label_smoothing=self.hparams.smoothing)(output, y)
-        loss = LabelSmoothingCrossEntropy(smoothing=self.hparams.smoothing)(output, y)
-        
+        # loss = LabelSmoothingCrossEntropy(smoothing=self.hparams.smoothing)(output, y)
+        loss = SoftTargetCrossEntropy()(output, y)
+
         self.log("train_loss", loss, sync_dist=True)
         return {"loss": loss}
 
