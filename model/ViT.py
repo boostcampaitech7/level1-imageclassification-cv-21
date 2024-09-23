@@ -4,6 +4,7 @@ from typing import Optional
 import torch
 import torch.nn as nn
 import timm
+from timm.utils import freeze
 
 class ViT(nn.Module):
     """
@@ -18,8 +19,16 @@ class ViT(nn.Module):
         super(ViT, self).__init__()
 
         # 사전 학습된 ViT 모델 로드
-        self.model = timm.create_model('vit_base_patch16_224', pretrained=pretrained, num_classes=num_classes, **kwargs)
+        self.model = timm.create_model('vit_base_patch16_224', pretrained=pretrained, **kwargs)
+        in_features = self.model.head.in_features
+        self.model.head = nn.Linear(in_features, 500)
 
+        # 'head'를 제외한 서브모듈 얼리기
+        submodules = [n for n, _ in self.model.named_children()]
+        freeze(self.model, submodules[:submodules.index('head')])
+        print(f"Non-head requires grad?: {self.model.blocks[0].attn.qkv.weight.requires_grad}")
+        print(f"Non-head requires grad?: {self.model.head.weight.requires_grad}")
+        
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         ViT 모델을 통한 포워드 패스.
