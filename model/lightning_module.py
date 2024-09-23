@@ -2,8 +2,14 @@
 import lightning as pl
 import torch
 
+from timm.data import Mixup
+from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
+from timm.scheduler import create_scheduler_v2
+from timm.scheduler.cosine_lr import CosineLRScheduler
+
 from .model_factory import create_model
 from config import ModelConfig
+
 
 
 # 라이트닝 모듈 정의
@@ -21,6 +27,10 @@ class LightningModule(pl.LightningModule):
         hparams = {**hparams, **model_hparams}
         self.save_hyperparameters(hparams)
         self.model = create_model(**model_hparams)
+        self.mixup_fn = Mixup(
+            mixup_alpha=self.hparams.mixup, cutmix_alpha=self.hparams.cutmix,
+            prob=self.hparams.mixup_prob, switch_prob=self.hparams.mixup_switch_prob,
+            label_smoothing=self.hparams.smoothing, num_classes=500)
 
     def forward(self, x):
         """
@@ -46,8 +56,13 @@ class LightningModule(pl.LightningModule):
             dict: 손실값을 포함하는 딕셔너리.
         """
         x, y = train_batch
+        x, y = self.mixup_fn(x, y)
         output = self.forward(x)
-        loss = torch.nn.CrossEntropyLoss()(output, y)
+        # origin loss
+        # loss = torch.nn.CrossEntropyLoss(label_smoothing=self.hparams.smoothing)(output, y)
+        # loss = LabelSmoothingCrossEntropy(smoothing=self.hparams.smoothing)(output, y)
+        loss = SoftTargetCrossEntropy()(output, y)
+
         self.log("train_loss", loss, sync_dist=True)
         return {"loss": loss}
 
@@ -99,7 +114,22 @@ class LightningModule(pl.LightningModule):
             weight_decay=self.hparams.weight_decay,
         )
 
-        scheduler = torch.optim.lr_scheduler.StepLR(
-            optimizer, step_size=self.trainer.estimated_stepping_batches * 2, gamma=0.1
-        )
-        return [optimizer], [scheduler]
+        # if self.hparams.sched=='cosine':
+        #     lr_scheduler = CosineLRScheduler(optimizer, t_initial=20, warmup_t=5, warmup_lr_init=1e-6)
+        # elif self.hparams.sched=='step':
+        #     lr_scheduler = torch.optim.lr_scheduler.StepLR(
+        #         optimizer, step_size=self.trainer.estimated_stepping_batches * 2, gamma=0.1
+        #     )
+        
+        
+        lr_scheduler, _ = create_scheduler_v2(
+            optimizer, 
+            sched=self.hparams.sched, 
+            num_epochs=self.trainer.max_epochs, 
+            warmup_epochs=self.hparams.warmup_epochs, 
+            warmup_lr=self.hparams.warmup_lr,
+            )
+        return [optimizer], [{"scheduler": lr_scheduler, "interval": "epoch"}]
+
+    def lr_scheduler_step(self, lr_scheduler, metric):
+        lr_scheduler.step(epoch=self.current_epoch)  # timm's scheduler need the epoch value

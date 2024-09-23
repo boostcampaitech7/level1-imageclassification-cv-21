@@ -5,6 +5,7 @@ from ray import train, tune
 from ray.tune.schedulers import ASHAScheduler
 from ray.air.integrations.wandb import WandbLoggerCallback
 from lightning import Trainer
+from lightning.pytorch.callbacks import LearningRateMonitor
 from ray.train import RunConfig, ScalingConfig, CheckpointConfig
 from ray.train.lightning import (
     RayDDPStrategy,
@@ -68,7 +69,7 @@ class RayTuner:
             use_gpu=True,
             trainer_resources={"CPU": 0},
             resources_per_worker={
-                "CPU": 2, 
+                "CPU": 6/self.config.experiment.num_workers, 
                 "GPU": 1/self.config.experiment.num_workers
                 },
         )
@@ -96,7 +97,10 @@ class RayTuner:
                 devices="auto",
                 accelerator="auto",
                 strategy=RayDDPStrategy(),
-                callbacks=[RayTrainReportCallback()],
+                callbacks=[
+                    RayTrainReportCallback(),
+                    LearningRateMonitor(logging_interval='epoch')
+                    ],
                 plugins=[RayLightningEnvironment()],
                 enable_progress_bar=False,
             )
@@ -108,7 +112,10 @@ class RayTuner:
                 devices=self.config.experiment.num_gpus,
                 accelerator="auto",
                 strategy="auto",
-                callbacks=[RayTrainReportCallback()],
+                callbacks=[
+                    RayTrainReportCallback(),
+                    LearningRateMonitor(logging_interval='epoch')
+                    ],
                 enable_checkpointing=False,
                 enable_progress_bar=False,
             )
@@ -121,10 +128,8 @@ class RayTuner:
         """
         # 데이터 로더 생성
         train_loader, val_loader = get_dataloaders(
-            data_path=self.config.dataset.data_path,
-            transform_type=self.config.dataset.transform_type,
+            self.config,
             batch_size=hparams["batch_size"],
-            num_workers=self.config.dataset.num_workers,
         )
         # 모델 생성
         model = LightningModule(hparams, config=self.config.model)
