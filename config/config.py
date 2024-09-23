@@ -12,6 +12,8 @@ class ModelConfig:
         self.model_name = "ResNet18"  # 기본 모델
         # 모델이 미리 학습되어 있는지 여부입니다
         self.pretrained = True
+        # 모델에서 경로를 줄일 확률
+        self.drop_path_rate = 0.0
         # 모델의 레이어 수 (현재 사용하지 않음)
         # self.num_layers = ~
         # 모델의 어텐션 헤드의 수 (현재 사용하지 않음)
