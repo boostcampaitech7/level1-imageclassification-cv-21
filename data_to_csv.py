@@ -29,7 +29,7 @@ def process_dataset(dataset_path, csv_file):
     
     with open(csv_file, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['Class_Name', 'Image', 'Target'])  # CSV 헤더 작성
+        writer.writerow(['class_Name', 'image_path', 'target'])  # CSV 헤더 작성
         for class_dir in class_dirs:
             # 각 클래스 폴더 내의 모든 이미지 파일 순회
             image_files = list(class_dir.glob('*.JPEG')) + list(class_dir.glob('*.png')) + list(class_dir.glob('*.jpg'))
@@ -45,7 +45,7 @@ def process_dataset(dataset_path, csv_file):
                 image_path = f"{class_dir.name}/{image_file.name}"
                 
                 # 이미지 정보를 CSV 파일에 기록
-                writer.writerow([class_dir.name, image_path, class_index])
+                writer.writerow([class_dir.name, image_path, class_index-1])
             print([class_dir.name, image_path, class_index])                
 
         # 매칭되지 않은 클래스 출력
