@@ -1,9 +1,9 @@
 1. EDA Method
    - If the number of object in the image is not not one(1) -> Crop each objects and add it to the class folder
-   <img src = "https://github.com/user-attachments/assets/978ee913-0d9f-4f19-8329-8e2a7c4fe4c7" width=100>
+   <img src = "https://github.com/user-attachments/assets/978ee913-0d9f-4f19-8329-8e2a7c4fe4c7" width=300>
    - If image is nearly-related to the class -> Remove it
    - If noise makes recognizing object hard (ex. logo, watermark) -> Erase it using white eraser
-   <img src = "https://github.com/user-attachments/assets/c27f6c81-4d96-4c9a-92b5-1d3a9bc8d0e8" width=100>
+   <img src = "https://github.com/user-attachments/assets/c27f6c81-4d96-4c9a-92b5-1d3a9bc8d0e8" width=600>
 
 2. The standard of naming editted image :
    - If the number of editted image is one(1) : Add '_ed'/'_fixed' behind the file name (ex. sketch_05 -> sketch_05_ed)
