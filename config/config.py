@@ -112,6 +112,13 @@ class ExperimentConfig:
         # 테스트에 사용할 체크포인트 경로입니다(필요 시 사용)
         self.checkpoint_path = None
 
+        # 앙상블 관련
+        # 다수의 모델 체크포인트가 들어있는 폴더 경로(한 폴더에 전부 들어있어야 함)
+        self.ensemble_path = None  
+        # 앙상블 메써드(uniform_soup, greedy_soup, ensemble_predict)
+        self.ensemble_method = 'ensemble_predict'
+
+
 
 class Config:
     """
