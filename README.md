@@ -1,5 +1,5 @@
 1. EDA Method
-   - If the number of objects in the image is not not one(1) -> Crop each object and add it to the class folder
+   - If the number of objects in the image is not one(1) -> Crop each object and add it to the class folder
    <img src = "https://github.com/user-attachments/assets/978ee913-0d9f-4f19-8329-8e2a7c4fe4c7" width=600>
    
    - If image is nearly-related to the class, remove it
