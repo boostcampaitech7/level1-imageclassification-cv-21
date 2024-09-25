@@ -85,7 +85,7 @@ class RayTuner:
                 checkpoint_score_order="min",
             ),
             storage_path=f"{self.config.experiment.save_dir}/ray_results",
-            callbacks=[WandbLoggerCallback(project="ViT_att-only-fine-tuning")],
+            callbacks=[WandbLoggerCallback(project="DeiT3_att-only-fine-tuning")],
             verbose=1,
         )
         return run_config
