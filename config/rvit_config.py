@@ -1,6 +1,6 @@
 from ray import tune
 
-from ..z_mine.config.config import Config
+from .config import Config
 
 
 class rViTConfig(Config):
