@@ -4,7 +4,7 @@ from typing import Optional
 import torch
 import torch.nn as nn
 import timm
-from timm.utils import freeze
+from timm.utils import freeze, unfreeze
 
 class ViT(nn.Module):
     """
@@ -21,11 +21,13 @@ class ViT(nn.Module):
         # 사전 학습된 ViT 모델 로드
         self.model = timm.create_model('vit_base_patch16_224', num_classes=num_classes, pretrained=pretrained, **kwargs)
 
-        # 'head'를 제외한 서브모듈 얼리기
+        # 'head'를 제외한 서브모듈 얼리기->block까지 안얼리기
         # submodules = [n for n, _ in self.model.named_children()]
         # freeze(self.model, submodules[:submodules.index('head')])
+        # unfreeze(self.model.blocks)
         # print(f"Non-head requires grad?: {self.model.blocks[0].attn.qkv.weight.requires_grad}")
-        # print(f"Non-head requires grad?: {self.model.head.weight.requires_grad}")
+        # print(f"Head requires grad?: {self.model.head.weight.requires_grad}")
+        # print(f"Non-head unfreezed??: {self.model.blocks[11].attn.qkv.weight.requires_grad}")
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """

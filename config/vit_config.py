@@ -7,7 +7,7 @@ class ViTConfig(Config):
         super().__init__()
         self.model_name = "ViT"  # Override the baseline model name
 
-        self.model.drop_path_rate = 0.0
+        self.model.drop_path_rate = 0.2
 
         self.training.batch_size = 64
         self.training.lr = tune.loguniform(1e-5, 2e-4)
