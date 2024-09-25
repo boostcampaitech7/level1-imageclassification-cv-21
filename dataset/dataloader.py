@@ -83,7 +83,7 @@ def get_genuine_valid_loader(config, batch_size=64):
     data_path = os.path.join(config.dataset.data_path, 'train')
 
     _, val_df = train_test_split(
-        info_df, test_size=0.3, random_state=42, stratify=info_df["target"]
+        info_df, test_size=0.3, random_state=None, stratify=info_df["target"]
     )
 
     transform_selector = TransformSelector(
