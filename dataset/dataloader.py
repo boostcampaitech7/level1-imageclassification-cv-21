@@ -54,6 +54,7 @@ def get_dataloaders(config, batch_size=32):
         shuffle=True,
         num_workers=config.dataset.num_workers,
         pin_memory=True,
+        drop_last=True
     )
     # val_loader = DataLoader(
     #     val_dataset,
@@ -66,7 +67,7 @@ def get_dataloaders(config, batch_size=32):
     return train_loader, None
 
 
-def get_genuine_valid_loader(config, batch_size=32):
+def get_genuine_valid_loader(config, batch_size=64):
     """
     Returns train and validation data loaders.
 
