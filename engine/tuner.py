@@ -13,7 +13,7 @@ from ray.train.lightning import (
     RayTrainReportCallback,
     prepare_trainer,
 )
-from dataset import get_dataloaders, get_genuine_valid_loader
+from dataset import get_dataloaders
 from model import LightningModule
 from ray.train.torch import TorchTrainer
 
@@ -85,7 +85,7 @@ class RayTuner:
                 checkpoint_score_order="min",
             ),
             storage_path=f"{self.config.experiment.save_dir}/ray_results",
-            callbacks=[WandbLoggerCallback(project=self.config.model.model_name)],
+            callbacks=[WandbLoggerCallback(project="ViT-att-only-fine-tuning")],
             verbose=1,
         )
         return run_config
@@ -127,14 +127,11 @@ class RayTuner:
         모델 학습을 위한 함수를 정의합니다.
         """
         # 데이터 로더 생성
-        train_loader, _ = get_dataloaders(
+        train_loader, val_loader = get_dataloaders(
             self.config,
             batch_size=hparams["batch_size"],
         )
-        val_loader = get_genuine_valid_loader(
-            self.config,
-            batch_size=hparams["batch_size"],
-        )
+
         # 모델 생성
         model = LightningModule(hparams, config=self.config.model)
 
