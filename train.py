@@ -6,7 +6,7 @@ import torch
 from config.config_factory import get_config
 from engine.tuner import RayTuner
 from engine.test_runner import run_test
-from utils import EnsemblePredictor
+from utils.ensemble import EnsemblePredictor
 
 
 # 하이퍼파라미터 튜닝, 모델 학습 및 테스트를 수행하는 함수
