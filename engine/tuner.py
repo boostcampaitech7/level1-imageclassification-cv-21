@@ -13,7 +13,7 @@ from ray.train.lightning import (
     RayTrainReportCallback,
     prepare_trainer,
 )
-from dataset import get_dataloaders, get_genuine_valid_loader
+from dataset import get_dataloaders
 from model import LightningModule
 from ray.train.torch import TorchTrainer
 
@@ -127,11 +127,7 @@ class RayTuner:
         모델 학습을 위한 함수를 정의합니다.
         """
         # 데이터 로더 생성
-        train_loader, _ = get_dataloaders(
-            self.config,
-            batch_size=hparams["batch_size"],
-        )
-        val_loader = get_genuine_valid_loader(
+        train_loader, val_loader = get_dataloaders(
             self.config,
             batch_size=hparams["batch_size"],
         )
