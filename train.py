@@ -6,6 +6,7 @@ import torch
 from config.config_factory import get_config
 from engine.tuner import RayTuner
 from engine.test_runner import run_test
+from utils import EnsemblePredictor
 
 
 # 하이퍼파라미터 튜닝, 모델 학습 및 테스트를 수행하는 함수
@@ -35,10 +36,14 @@ def main(config):
     Args:
         config: 모델 및 실험 설정이 포함된 configuration 객체
     """
-    # checkpoint 경로가 존재할 경우 테스트를 수행하고, 프로그램 종료
+    # checkpoint 또는 앙상블 경로가 존재할 경우 테스트를 수행하고, 프로그램 종료
     if config.experiment.checkpoint_path:
         run_test(config, config.experiment.checkpoint_path)
         return  # Exit the program after test and saving the csv output
+    elif config.experiment.ensemble_path:
+        predictor = EnsemblePredictor(config)
+        predictor.run()
+        return # Exit the program after test and saving the csv output
     else:
         pass
     # CUDA 가 없을 경우에 대한 처리 (CPU 학습은 불필요해서 넣었습니다)
@@ -76,6 +81,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--checkpoint-path", type=str, help="Path to the checkpoint to load and test."
+    )
+    parser.add_argument(
+        "--ensemble-path", type=str, help="Path to the ensemble checkpoints to load and test."
+    )
+    parser.add_argument(
+        "--ensemble-method", type=str, help="Type of ensemble method to apply"
     )
     args = parser.parse_args()
 
