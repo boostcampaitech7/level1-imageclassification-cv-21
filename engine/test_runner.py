@@ -1,7 +1,7 @@
 from lightning import Trainer
 
 from .callbacks import PredictionCallback
-from dataset import get_genuine_valid_loader, get_test_loader
+from dataset import  get_test_loader
 from model import LightningModule
 
 
@@ -13,8 +13,6 @@ def run_test(config, ckpt_dir):
         config: 모델 및 실험 설정이 포함된 configuration 객체
         ckpt_dir: 체크포인트 디렉토리
     """
-    # 검증 데이터 로더(진) 생성
-    valid_loader = get_genuine_valid_loader(config, batch_size=64)
     # 테스팅 데이터 로더 생성
     test_loader = get_test_loader(config)
 
@@ -33,8 +31,6 @@ def run_test(config, ckpt_dir):
     best_model = LightningModule.load_from_checkpoint(
         f"{ckpt_dir}/checkpoint.ckpt", config=config.model
     )
-
-    trainer_test.validate(best_model, dataloaders=valid_loader)
 
     # 로드된 모델 테스팅 수행
     trainer_test.test(best_model, dataloaders=test_loader)
