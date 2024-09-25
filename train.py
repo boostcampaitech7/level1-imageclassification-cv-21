@@ -38,7 +38,7 @@ def main(config):
     """
     # checkpoint 또는 앙상블 경로가 존재할 경우 테스트를 수행하고, 프로그램 종료
     if config.experiment.checkpoint_path:
-        run_test(config)
+        run_test(config, config.experiment.checkpoint_path)
         return  # Exit the program after test and saving the csv output
     elif config.experiment.ensemble_path:
         predictor = EnsemblePredictor(config)

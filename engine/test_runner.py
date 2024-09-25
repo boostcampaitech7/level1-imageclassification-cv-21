@@ -5,7 +5,7 @@ from dataset import get_genuine_valid_loader, get_test_loader
 from model import LightningModule
 
 
-def run_test(config):
+def run_test(config, ckpt_dir):
     """
     모델 테스팅을 수행합니다.
 
@@ -13,7 +13,6 @@ def run_test(config):
         config: 모델 및 실험 설정이 포함된 configuration 객체
         ckpt_dir: 체크포인트 디렉토리
     """
-    ckpt_dir = config.experiment.checkpoint_path
     # 검증 데이터 로더(진) 생성
     valid_loader = get_genuine_valid_loader(config, batch_size=64)
     # 테스팅 데이터 로더 생성
