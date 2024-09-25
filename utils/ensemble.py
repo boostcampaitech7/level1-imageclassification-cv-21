@@ -5,7 +5,8 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 import torch
-from lightning import LightningModule, Trainer
+from model import LightningModule
+from lightning import Trainer
 
 from dataset import get_test_loader
 
@@ -70,17 +71,20 @@ class EnsemblePredictor:
     #     return np.mean(accuracies)
 
     # 앙상블 예측
-    def ensemble_predict(models, dataloader):
+    def ensemble_predict(self, models, dataloader):
         # 예측값을 저장할 배열을 초기화 합니다.
-        predictions = []
-        for model in models:
+        ensemble_predictions = []
+        for i, model in enumerate(models):
             trainer = Trainer(devices=1)
-            predictions.append(trainer.predict(model, dataloaders=dataloader))
+            predictions = trainer.predict(model, dataloaders=dataloader)
+            prediction_tensor = torch.cat(predictions, dim=0)
+            print(f"{i}th model prediction output shape is {prediction_tensor.shape}")
+            ensemble_predictions.append(prediction_tensor)
         # 예측값을 합산하여 앙상블 합니다.
-        prediction_output = np.array(predictions).mean(axis=0)
-        print(f"prediction output shape is {prediction_output.shape}")
+        ensemble_output = torch.stack(ensemble_predictions).mean(dim=0)
+        print(f"Ensembled shape is {ensemble_output.shape}")
         # 최종 예측값을 반환합니다.
-        return prediction_output
+        return ensemble_output
 
     # def uniform_soup(self, predictions):
     #     """
@@ -113,7 +117,7 @@ class EnsemblePredictor:
         elif self.method == 'greedy_soup':
             model = self.greedy_soup(models)
         elif self.method == 'ensemble_predict':
-            pass;
+            pass
         else:
             raise ValueError("Invalid ensemble method")
 
@@ -129,7 +133,7 @@ class EnsemblePredictor:
 
 
         if self.method == 'ensemble_predict':
-            predictions = ensemble_predict(models, self.test_loader)
+            predictions = self.ensemble_predict(models, self.test_loader)
         else:
             predictions = model.predict(self.test_loader)
         
