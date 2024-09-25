@@ -99,7 +99,7 @@ class EnsemblePredictor:
         return greedy_soup_model
 '''
 
-# Ensemble predictions using the specified method
+    # Ensemble predictions using the specified method
     def ensemble(self):
         models = self.load_models()
         if self.method == 'uniform_soup':
@@ -130,11 +130,11 @@ class EnsemblePredictor:
         
         self.save_to_csv(predictions=predictions)
 
-    # def evaluate(self, predictions, targets):
-    #     """
-    #     Evaluate the accuracy of the predictions
-    #     """
-    #     return np.mean(np.argmax(predictions, axis=1) == targets)
+'''
+    def evaluate(self, predictions, targets):
+        # Evaluate the accuracy of the predictions
+        return np.mean(np.argmax(predictions, axis=1) == targets)
+'''
 
     def save_to_csv(self, predictions):
         # 예측 결과를 csv 파일로 저장
@@ -148,8 +148,6 @@ class EnsemblePredictor:
         test_info.to_csv(file_name, index=False, lineterminator="\n")
         print(f"Output csv file successfully saved in {file_name}!!")
 
+    # Run the ensemble predictor using the specified method
     def run(self):
-        """
-        Run the ensemble predictor using the specified method
-        """
         self.ensemble()
