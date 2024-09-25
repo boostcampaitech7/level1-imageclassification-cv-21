@@ -66,7 +66,7 @@ class DatasetConfig:
     def __init__(self):
         # 데이터셋 경로입니다
         self.data_path = "/data/ephemeral/home/data/"
-        # 데이터 변환 유형입니다 (torchvision, alubmentations, autoaugment)
+        # 데이터 변환 유형입니다 (torchvision, alubmentations, autoaugment, trivial)
         self.transform_type = "albumentations"
         # 이미지 크기입니다
         self.input_size = 224
