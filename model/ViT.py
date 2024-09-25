@@ -23,8 +23,8 @@ class ViT(nn.Module):
         self.set_attn_only_finetune()
 
         # 설정 확인
-        for name, param in self.model.named_parameters():
-            print(f"{name}: requires_grad = {param.requires_grad}")
+        # for name, param in self.model.named_parameters():
+        #    print(f"{name}: requires_grad = {param.requires_grad}")
 
         # 'head'를 제외한 서브모듈 얼리기->block까지 안얼리기
         # submodules = [n for n, _ in self.model.named_children()]
