@@ -90,3 +90,11 @@ class ViT(nn.Module):
             print("CLS token requires_grad is set to True")
         except AttributeError:
             print("No CLS token found.")
+    
+    def enhance_cross_attention_finetune(self):
+        """
+            Cross-Attention 메커니즘을 강화하고 fine-tuning을 위해 설정
+        """ 
+        # Cross-Attention 층의 파라미터 학습 활성화
+        for param in self.cross_attention.parameters():
+            param.requires_grad = True
