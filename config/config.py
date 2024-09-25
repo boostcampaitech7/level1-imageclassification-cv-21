@@ -65,7 +65,7 @@ class DatasetConfig:
 
     def __init__(self):
         # 데이터셋 경로입니다
-        self.data_path = "/data/ephemeral/home/data/"
+        self.data_path = "/home/user/Desktop/data/"
         # 데이터 변환 유형입니다 (torchvision, alubmentations, autoaugment)
         self.transform_type = "albumentations"
         # 이미지 크기입니다
@@ -89,7 +89,7 @@ class ExperimentConfig:
 
     def __init__(self):
         # 실험 결과를 저장할 디렉토리입니다
-        self.save_dir = "/data/ephemeral/home/logs/"
+        self.save_dir = "/home/user/Desktop/logs/"
         # 학습에 사용할 GPU의 수입니다
         self.num_gpus = 1 # ddp가 불가능한 관계로 항상 1 고정
         # 스케줄링에 사용할 워커의 수입니다
