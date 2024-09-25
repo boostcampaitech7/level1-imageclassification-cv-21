@@ -20,6 +20,11 @@ class ViT(nn.Module):
 
         # 사전 학습된 ViT 모델 로드
         self.model = timm.create_model('vit_base_patch16_224', num_classes=num_classes, pretrained=pretrained, **kwargs)
+        self.set_attn_only_finetune()
+
+        # 설정 확인
+        for name, param in self.model.named_parameters():
+            print(f"{name}: requires_grad = {param.requires_grad}")
 
         # 'head'를 제외한 서브모듈 얼리기
         # submodules = [n for n, _ in self.model.named_children()]
@@ -38,3 +43,48 @@ class ViT(nn.Module):
             torch.Tensor: ViT 모델의 출력.
         """
         return self.model(x)
+    
+    def set_attn_only_finetune(self):
+        """
+        모델의 attention 파라미터만 학습하도록 설정.
+
+        인자:
+            model (nn.Module): 입력 모델
+        """
+        # 전체 파라미터 학습 비활성화
+        for name_p, p in self.model.named_parameters():
+            if '.attn.' in name_p:
+                p.requires_grad = True
+            else:
+                p.requires_grad = False
+        
+        # 헤드 또는 마지막 분류 레이어 학습 활성화
+        try:
+            self.model.head.weight.requires_grad = True
+            self.model.head.bias.requires_grad = True
+        except AttributeError:
+            try:
+                self.model.fc.weight.requires_grad = True
+                self.model.fc.bias.requires_grad = True
+            except AttributeError:
+                print("No head or fc layer found.")
+        
+        # Position embedding 학습 활성화
+        try:
+            self.model.pos_embed.requires_grad = True
+        except AttributeError:
+            print('No position embedding found.')
+        
+        # Patch embedding 학습 비활성화
+        try:
+            for p in self.model.patch_embed.parameters():
+                p.requires_grad = False
+        except AttributeError:
+            print('No patch embed found.')
+
+        # CLS Token 학습 활성화
+        try:
+            self.model.cls_token.requires_grad = True
+            print("CLS token requires_grad is set to True")
+        except AttributeError:
+            print("No CLS token found.")
