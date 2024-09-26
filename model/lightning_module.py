@@ -116,9 +116,11 @@ class LightningModule(pl.LightningModule):
         outputs = []
         for image in test_batch:
             output = self.forward(image.unsqueeze(0))
-            _, predicted = torch.max(output, 1)
-            outputs.append(predicted.squeeze())
-        return torch.stack(outputs)
+            outputs.append(output)
+
+        outputs = torch.cat(outputs, dim=0)
+        _, predicted = torch.max(outputs, 1)
+        return predicted
 
     def configure_optimizers(self):
         """
