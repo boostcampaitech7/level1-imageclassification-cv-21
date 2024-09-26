@@ -55,6 +55,10 @@ class TrainingConfig:
         # Label smoothing 파라미터
         self.smoothing = 0.1
 
+        # 자동 혼합 정밀도 사용
+        self.use_amp = True  # 자동 혼합 정밀도 사용
+
+
         
 
 
