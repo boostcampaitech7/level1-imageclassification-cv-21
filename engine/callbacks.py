@@ -40,7 +40,7 @@ class PredictionCallback(Callback):
         """
         테스팅 종료 후 호출되는 함수
         """
-        predictions = np.array(self.predictions)
+        predictions = np.argmax(self.predictions.cpu().numpy(), axis=1)
         test_info = pd.read_csv(self.data_path)
         test_info["target"] = predictions
         test_info = test_info.reset_index().rename(columns={"index": "ID"})

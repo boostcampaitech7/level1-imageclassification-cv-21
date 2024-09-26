@@ -28,6 +28,9 @@ class EnsemblePredictor:
         models = []
         for ckpt_file in os.listdir(self.ckpt_dir):
             if ckpt_file.endswith(".ckpt"):
+                checkpoint = torch.load(ckpt_file)
+                hparam = checkpoint.hparam
+                self.config.model.model_name = hparam.model_name
                 model = LightningModule.load_from_checkpoint(os.path.join(self.ckpt_dir, ckpt_file), config=self.config.model)
                 models.append(model)
         return models
@@ -37,11 +40,12 @@ class EnsemblePredictor:
         # 예측값을 저장할 배열을 초기화 합니다.
         ensemble_predictions = []
         for i, model in enumerate(models):
-            trainer = Trainer(devices=1)
+            trainer = Trainer(devices=1, precision='16-mixed')
             callback = PredictionEnsembleCallback()
             trainer.callbacks.append(callback)
             trainer.test(model, dataloaders=dataloader)
-            prediction_tensor = torch.cat(callback.predictions, dim=0)
+            # print(len(callback.predictions)) [[500, 10014]]
+            prediction_tensor = torch.stack(callback.predictions)
             print(f"{i}th model prediction output shape is {prediction_tensor.shape}")
             ensemble_predictions.append(prediction_tensor)
         # 예측값을 합산하여 앙상블 합니다.
@@ -73,7 +77,7 @@ class EnsemblePredictor:
     def save_to_csv(self, predictions):
         # 예측 결과를 csv 파일로 저장
         test_info = pd.read_csv(self.config.dataset.data_path + "/test.csv")
-        test_info["target"] = np.argmax(predictions, axis=1)
+        test_info["target"] = np.argmax(predictions.cpu().numpy(), axis=1)
         test_info = test_info.reset_index().rename(columns={"index": "ID"})
         current_time = datetime.now().strftime("%Y-%m-%d_%H-%M")
         file_name = os.path.join(
