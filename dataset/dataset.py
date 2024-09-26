@@ -22,7 +22,6 @@ class CustomDataset(Dataset):
         self.is_inference = is_inference
         self.transform = transform
         self.image_paths = self.info_df["image_path"].tolist()
-        self.tta = False
         self.tta_transforms = [
             transforms.Compose([
                 transforms.Resize((224, 224)), 
@@ -70,8 +69,12 @@ class CustomDataset(Dataset):
         return image
 
     def _apply_transform(self, image):
-        if self.is_inference:
-            image = Image.fromarray(image)
+        if self.transform:
+            image = self.transform(image)
+        return image
+    
+    def _apply_transform_tta(self, image, tta_transform):
+        image = Image.fromarray(image)
         if self.transform:
             image = self.transform(image)
         return image
@@ -91,7 +94,7 @@ class CustomDataset(Dataset):
         image = self._load_image(image_path)
 
         if self.is_inference:
-            tta_images = [self._apply_transform(image, tta_transform) for tta_transform in self.tta_transforms]
+            tta_images = [self._apply_transform_tta(image, tta_transform) for tta_transform in self.tta_transforms]
             return tta_images
         else:
             image = self._apply_transform(image)
