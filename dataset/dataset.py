@@ -1,6 +1,7 @@
 import os
 
 import cv2
+from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
 
@@ -69,6 +70,8 @@ class CustomDataset(Dataset):
         return image
 
     def _apply_transform(self, image):
+        if self.is_inference:
+            image = Image.fromarray(image)
         if self.transform:
             image = self.transform(image)
         return image
