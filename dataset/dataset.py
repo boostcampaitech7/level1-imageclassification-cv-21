@@ -76,7 +76,7 @@ class CustomDataset(Dataset):
     def _apply_transform_tta(self, image, tta_transform):
         image = Image.fromarray(image)
         if self.transform:
-            image = self.transform(image)
+            image = tta_transform(image)
         return image
 
     def __getitem__(self, index):

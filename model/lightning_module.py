@@ -115,10 +115,13 @@ class LightningModule(pl.LightningModule):
         """
         outputs = []
         for image in test_batch:
-            output = self.forward(image.unsqueeze(0))
+            output = self.forward(image) #torch.Size([64, 3, 224, 224])
+            #print(output.shape)
             outputs.append(output)
-
-        outputs = torch.cat(outputs, dim=0)
+        outputs = torch.mean(torch.stack(outputs), dim=0)
+        #print(outputs.shape)
+        #outputs = torch.cat(outputs, dim=0)
+        #outputs = torch.mean(outputs, dim=0)
         _, predicted = torch.max(outputs, 1)
         return predicted
 
