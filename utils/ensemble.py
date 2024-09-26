@@ -9,7 +9,7 @@ from model import LightningModule
 from lightning import Trainer
 
 from dataset import get_test_loader
-
+from engine import PredictionEnsembleCallback
 class EnsemblePredictor:
     def __init__(self, config):
         """
@@ -38,8 +38,10 @@ class EnsemblePredictor:
         ensemble_predictions = []
         for i, model in enumerate(models):
             trainer = Trainer(devices=1)
-            predictions = trainer.predict(model, dataloaders=dataloader)
-            prediction_tensor = torch.cat(predictions, dim=0)
+            callback = PredictionEnsembleCallback()
+            trainer.callbacks.append(callback)
+            trainer.test(model, dataloaders=dataloader)
+            prediction_tensor = torch.cat(callback.predictions, dim=0)
             print(f"{i}th model prediction output shape is {prediction_tensor.shape}")
             ensemble_predictions.append(prediction_tensor)
         # 예측값을 합산하여 앙상블 합니다.

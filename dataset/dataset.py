@@ -1,7 +1,9 @@
 import os
 
 import cv2
+from PIL import Image
 from torch.utils.data import Dataset
+from torchvision import transforms
 
 
 class CustomDataset(Dataset):
@@ -20,6 +22,37 @@ class CustomDataset(Dataset):
         self.is_inference = is_inference
         self.transform = transform
         self.image_paths = self.info_df["image_path"].tolist()
+        self.tta_transforms = [
+            transforms.Compose([
+                transforms.Resize((224, 224)), 
+                transforms.ToTensor(), 
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            ]),
+            transforms.Compose([
+                transforms.Resize((224, 224)), 
+                transforms.RandomHorizontalFlip(p=1),
+                transforms.ToTensor(), 
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            ]),
+            transforms.Compose([
+                transforms.Resize((224, 224)), 
+                transforms.ColorJitter(brightness=0.2, contrast=0.2),
+                transforms.ToTensor(), 
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            ]),
+            transforms.Compose([
+                transforms.Resize((224, 224)), 
+                transforms.RandomRotation(15),
+                transforms.ToTensor(), 
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            ]),
+            transforms.Compose([
+                transforms.Resize((224, 224)), 
+                transforms.CenterCrop(224),
+                transforms.ToTensor(), 
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            ]),
+        ]
 
         if not self.is_inference:
             self.labels = self.info_df[
@@ -39,6 +72,12 @@ class CustomDataset(Dataset):
         if self.transform:
             image = self.transform(image)
         return image
+    
+    def _apply_transform_tta(self, image, tta_transform):
+        image = Image.fromarray(image)
+        if self.transform:
+            image = tta_transform(image)
+        return image
 
     def __getitem__(self, index):
         """
@@ -53,11 +92,12 @@ class CustomDataset(Dataset):
         """
         image_path = os.path.join(self.data_path, self.image_paths[index])
         image = self._load_image(image_path)
-        image = self._apply_transform(image)
 
         if self.is_inference:
-            return image
+            tta_images = [self._apply_transform_tta(image, tta_transform) for tta_transform in self.tta_transforms]
+            return tta_images
         else:
+            image = self._apply_transform(image)
             label = self.labels[index]
             return image, label
 
