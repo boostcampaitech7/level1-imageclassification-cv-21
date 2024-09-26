@@ -85,6 +85,23 @@ class LightningModule(pl.LightningModule):
         self.log("val_loss", loss, sync_dist=True)
         self.log("val_acc", accuracy, sync_dist=True)
 
+
+    # def test_step(self, test_batch, batch_idx):
+    #     """
+    #     모델의 예측 스텝 정의.
+
+    #     Args:
+    #         test_batch (tuple): 입력 텐서 배치.
+    #         batch_idx (int): 배치 인덱스.
+
+    #     Returns:
+    #         list: 예측된 클래스 인덱스 목록.
+    #     """
+    #     x = test_batch
+    #     output = self.forward(x)
+    #     _, predicted = torch.max(output, 1)
+    #     return predicted
+
     def test_step(self, test_batch, batch_idx):
         """
         모델의 예측 스텝 정의.
@@ -96,10 +113,12 @@ class LightningModule(pl.LightningModule):
         Returns:
             list: 예측된 클래스 인덱스 목록.
         """
-        x = test_batch
-        output = self.forward(x)
-        _, predicted = torch.max(output, 1)
-        return predicted
+        outputs = []
+        for image in test_batch:
+            output = self.forward(image.unsqueeze(0))
+            _, predicted = torch.max(output, 1)
+            outputs.append(predicted.squeeze())
+        return torch.stack(outputs)
 
     def configure_optimizers(self):
         """
@@ -121,12 +140,12 @@ class LightningModule(pl.LightningModule):
         #         optimizer, step_size=self.trainer.estimated_stepping_batches * 2, gamma=0.1
         #     )
         
-        
+
         lr_scheduler, _ = create_scheduler_v2(
-            optimizer, 
-            sched=self.hparams.sched, 
-            num_epochs=self.trainer.max_epochs, 
-            warmup_epochs=self.hparams.warmup_epochs, 
+            optimizer,
+            sched=self.hparams.sched,
+            num_epochs=self.trainer.max_epochs,
+            warmup_epochs=self.hparams.warmup_epochs,
             warmup_lr=self.hparams.warmup_lr,
             )
         return [optimizer], [{"scheduler": lr_scheduler, "interval": "epoch"}]
