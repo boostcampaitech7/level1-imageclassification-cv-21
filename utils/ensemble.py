@@ -5,7 +5,8 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 import torch
-from lightning import LightningModule, Trainer
+from model import LightningModule
+from lightning import Trainer
 
 from dataset import get_test_loader
 
@@ -31,75 +32,22 @@ class EnsemblePredictor:
                 models.append(model)
         return models
 
-'''
-    def get_train_valid_loader(self):
-        train_data = pd.read_csv(self.config.dataset.data_path + "/train.csv")
-        train_input = train_data.drop(self.config.dataset.target_name, axis=1)
-        train_target = train_data[self.config.dataset.target_name]
-
-        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-
-        valid_loaders = []
-
-        for _, valid_index in skf.split(train_input):
-            valid_input_fold = train_input.iloc[valid_index]
-            valid_target_fold = train_target.iloc[valid_index]
-
-            # 데이터 로더 생성
-            valid_dataset = MyDataset(valid_input_fold, valid_target_fold)
-            
-            valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=64)
-            
-            valid_loaders.append(valid_loader)
-
-        return valid_loaders
-
-    def ensemble_validate_kfold(self, models, valid_loaders):
-        # Ensemble Validate: Perform k-fold validation for ensemble model
-        accuracies = []
-        for i in range(len(valid_loaders)):
-            valid_loader = valid_loaders[i]
-            targets = np.array([y for _, y in valid_loader.dataset])
-            predictions = ensemble_predict(models, valid_loader)
-            accuracy = self.evaluate(predictions, targets)
-            accuracies.append(accuracy)
-
-        return np.mean(accuracies)
-'''
-
     # 앙상블 예측
-    def ensemble_predict(models, dataloader):
+    def ensemble_predict(self, models, dataloader):
         # 예측값을 저장할 배열을 초기화 합니다.
-        predictions = []
-        for model in models:
+        ensemble_predictions = []
+        for i, model in enumerate(models):
             trainer = Trainer(devices=1)
-            predictions.append(trainer.predict(model, dataloaders=dataloader))
+            predictions = trainer.predict(model, dataloaders=dataloader)
+            prediction_tensor = torch.cat(predictions, dim=0)
+            print(f"{i}th model prediction output shape is {prediction_tensor.shape}")
+            ensemble_predictions.append(prediction_tensor)
         # 예측값을 합산하여 앙상블 합니다.
-        prediction_output = np.array(predictions).mean(axis=0)
-        print(f"prediction output shape is {prediction_output.shape}")
+        ensemble_output = torch.stack(ensemble_predictions).mean(dim=0)
+        print(f"Ensembled shape is {ensemble_output.shape}")
         # 최종 예측값을 반환합니다.
-        return prediction_output
+        return ensemble_output
 
-'''
-    def uniform_soup(self, predictions):
-        # Uniform Soup: Combine predictions by taking the average of all models' predictions
-        return uniform_soup_model
-
-    def greedy_soup(self, predictions, targets):
-        # Greedy Soup: Combine predictions by iteratively adding models that improve validation performance
-        ensemble = []
-        best_accuracy = 0.0
-        for i in range(predictions.shape[0]):
-            new_ensemble = ensemble + [predictions[i]]
-            accuracy = self.evaluate(np.mean(new_ensemble, axis=0), targets)
-            if accuracy > best_accuracy:
-                ensemble = new_ensemble
-                best_accuracy = accuracy
-        return np.mean(ensemble, axis=0)
-        return greedy_soup_model
-'''
-
-    # Ensemble predictions using the specified method
     def ensemble(self):
         models = self.load_models()
         if self.method == 'uniform_soup':
@@ -107,34 +55,18 @@ class EnsemblePredictor:
         elif self.method == 'greedy_soup':
             model = self.greedy_soup(models)
         elif self.method == 'ensemble_predict':
-            pass;
+            pass
         else:
             raise ValueError("Invalid ensemble method")
 
-'''
-        검증 정확도 출력(아직 미구현)
-        predictions = []
-        for model in models:
-            predictions_model_fold = []
-            for i in range(len(self.get_train_valid_loader())):
-                valid_loader = self.get_train_valid_loader()[i]
-                predictions_model_fold.append(self.predict(model, valid_loader))
-            predictions.append(predictions_model_fold)
-        predictions = np.array(predictions)
-'''
+
 
         if self.method == 'ensemble_predict':
-            predictions = ensemble_predict(models, self.test_loader)
+            predictions = self.ensemble_predict(models, self.test_loader)
         else:
             predictions = model.predict(self.test_loader)
         
         self.save_to_csv(predictions=predictions)
-
-'''
-    def evaluate(self, predictions, targets):
-        # Evaluate the accuracy of the predictions
-        return np.mean(np.argmax(predictions, axis=1) == targets)
-'''
 
     def save_to_csv(self, predictions):
         # 예측 결과를 csv 파일로 저장
@@ -151,3 +83,4 @@ class EnsemblePredictor:
     # Run the ensemble predictor using the specified method
     def run(self):
         self.ensemble()
+

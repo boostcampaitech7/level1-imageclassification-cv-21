@@ -3,6 +3,7 @@ from .custom_nn_config import CustomNNConfig
 from .coatnet_config import CoAtNetConfig
 from .vit_config import ViTConfig
 from .deit3_config import DeiT3Config
+from .deit3_large_config import DeiT3LargeConfig
 
 # 모델 이름과 구성 설정 클래스를 매핑하는 디렉토리
 CONFIG_MAP = {
@@ -10,7 +11,8 @@ CONFIG_MAP = {
     'CustomNN': CustomNNConfig,
     'CoAtNet': CoAtNetConfig,
     'ViT': ViTConfig,
-    'DeiT3': DeiT3Config
+    'DeiT3': DeiT3Config,
+    'DeiT3Large' : DeiT3LargeConfig
 }
 
 def get_config(model_name):

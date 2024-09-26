@@ -13,7 +13,7 @@ from ray.train.lightning import (
     RayTrainReportCallback,
     prepare_trainer,
 )
-from dataset import get_dataloaders, get_genuine_valid_loader
+from dataset import get_dataloaders
 from model import LightningModule
 from ray.train.torch import TorchTrainer
 
@@ -109,6 +109,7 @@ class RayTuner:
         else:
             trainer = Trainer(
                 max_epochs=self.config.experiment.max_epochs,
+                precision="16-mixed" if self.config.training.use_amp else "32-true",
                 devices=self.config.experiment.num_gpus,
                 accelerator="auto",
                 strategy="auto",
@@ -127,14 +128,11 @@ class RayTuner:
         모델 학습을 위한 함수를 정의합니다.
         """
         # 데이터 로더 생성
-        train_loader, _ = get_dataloaders(
+        train_loader, val_loader = get_dataloaders(
             self.config,
             batch_size=hparams["batch_size"],
         )
-        val_loader = get_genuine_valid_loader(
-            self.config,
-            batch_size=hparams["batch_size"],
-        )
+
         # 모델 생성
         model = LightningModule(hparams, config=self.config.model)
 
