@@ -122,8 +122,8 @@ class LightningModule(pl.LightningModule):
         #print(outputs.shape)
         #outputs = torch.cat(outputs, dim=0)
         #outputs = torch.mean(outputs, dim=0)
-        _, predicted = torch.max(outputs, 1)
-        return predicted
+        # _, predicted = torch.max(outputs, 1)
+        return outputs
 
     def configure_optimizers(self):
         """

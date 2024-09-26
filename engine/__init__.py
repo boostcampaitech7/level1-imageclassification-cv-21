@@ -1,1 +1,1 @@
-from .callbacks import PredictionCallback
+from .callbacks import PredictionCallback, PredictionEnsembleCallback
