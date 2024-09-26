@@ -45,3 +45,6 @@ lightning_logs
 .AppleDouble
 .LSOverride
 Desktop.ini
+
+data/
+logs/

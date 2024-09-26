@@ -4,6 +4,7 @@ from .coatnet_config import CoAtNetConfig
 from .vit_config import ViTConfig
 from .deit3_config import DeiT3Config
 from .rvit_config import rViTConfig
+from .evaclip_config import EVACLIPConfig
 
 # 모델 이름과 구성 설정 클래스를 매핑하는 디렉토리
 CONFIG_MAP = {
@@ -12,7 +13,8 @@ CONFIG_MAP = {
     'CoAtNet': CoAtNetConfig,
     'ViT': ViTConfig,
     'DeiT3': DeiT3Config,
-    'rViT': rViTConfig
+    'rViT': rViTConfig,
+    'EVACLIP': EVACLIPConfig
 }
 
 def get_config(model_name):

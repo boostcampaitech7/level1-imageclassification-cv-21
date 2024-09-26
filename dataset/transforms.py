@@ -6,6 +6,7 @@ from PIL import Image
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 from timm.data import create_transform
+from torchvision.transforms import TrivialAugmentWide
 
 
 class TransformSelector:
@@ -16,7 +17,7 @@ class TransformSelector:
     def __init__(self, transform_type: str, input_size: int = 224, **kwargs):
 
         # 지원하는 변환 라이브러리인지 확인
-        if transform_type in ["torchvision", "albumentations", "autoaugment"]:
+        if transform_type in ["torchvision", "albumentations", "autoaugment", "trivial"]:
             self.transform_type = transform_type
         else:
             raise ValueError("Unknown transformation library specified.")
@@ -34,6 +35,10 @@ class TransformSelector:
 
         elif self.transform_type == "autoaugment":
             transform = AutoAugmentTransform(is_train=is_train, input_size=self.input_size, aa=self.aa)
+            
+        elif self.transform_type == "trivial":
+            transform = TrivialTransform(is_train=is_train, input_size=self.input_size)
+            
         else:
             raise ValueError("Transform is not properly selected")
         return transform
@@ -131,6 +136,36 @@ class AutoAugmentTransform:
                 auto_augment=aa,
                 interpolation='bicubic'
                 )
+        else:
+            # 검증/테스트용 변환: 공통 변환만 적용
+            self.transform = transforms.Compose(common_transforms)
+
+    def __call__(self, image: np.ndarray) -> torch.Tensor:
+        image = Image.fromarray(image)  # numpy 배열을 PIL 이미지로 변환
+
+        transformed = self.transform(image)  # 설정된 변환을 적용
+
+        return transformed  # 변환된 이미지 반환
+
+
+class TrivialTransform:
+    def __init__(self, is_train: bool = True, input_size: int = 224):
+        # 공통 변환 설정: 이미지 리사이즈, 텐서 변환, 정규화
+        common_transforms = [
+            transforms.Resize((input_size, input_size)),  # 이미지를 224x224 크기로 리사이즈
+            transforms.ToTensor(),  # 이미지를 PyTorch 텐서로 변환
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+            ),  # 정규화
+        ]
+
+        if is_train:
+            # 훈련 데이터에 적용할 추가적인 변환 (TrivialAugmentWide 포함)
+            self.transform = transforms.Compose([
+                TrivialAugmentWide(num_magnitude_bins=31),
+                ]
+                + common_transforms
+            )
         else:
             # 검증/테스트용 변환: 공통 변환만 적용
             self.transform = transforms.Compose(common_transforms)

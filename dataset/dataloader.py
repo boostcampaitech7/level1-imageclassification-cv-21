@@ -21,8 +21,8 @@ def get_dataloaders(config, batch_size=32):
     Returns:
         Tuple[DataLoader, DataLoader]: Train and validation data loaders.
     """
-    info_df = pd.read_csv(os.path.join(config.dataset.data_path, 'processed_final_final_final.csv'))
-    data_path = os.path.join(config.dataset.data_path, 'processed_final_final_final')
+    info_df = pd.read_csv(os.path.join(config.dataset.data_path, 'train.csv'))
+    data_path = os.path.join(config.dataset.data_path, 'train')
 
     # train_df, val_df = train_test_split(
     #     info_df, test_size=0.0, stratify=info_df["target"]
