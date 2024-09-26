@@ -101,7 +101,7 @@ class ExperimentConfig:
 
         # ASHA 스케줄러의 설정입니다
         # 학습의 최대 에폭입니다
-        self.max_epochs = 100 # Fine-tuning시 50으로도 충분할 가능성이 높음. 수렴이 느릴 경우 80~100
+        self.max_epochs = 50 # Fine-tuning시 50으로도 충분할 가능성이 높음. 수렴이 느릴 경우 80~100
         # 고려할 최소 에폭입니다
         self.grace_period = 10
         # 각 브래킷의 트라이의 수 감소 비율입니다
