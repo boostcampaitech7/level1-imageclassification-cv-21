@@ -24,9 +24,7 @@ class EnsemblePredictor:
         self.test_loader = get_test_loader(config)
 
     def load_models(self):
-        """
-        체크포인트에서 모델 로드
-        """
+        # 체크포인트에서 모델 로드
         models = []
         for ckpt_file in os.listdir(self.ckpt_dir):
             if ckpt_file.endswith(".ckpt"):
@@ -51,9 +49,6 @@ class EnsemblePredictor:
         return ensemble_output
 
     def ensemble(self):
-        """
-        Ensemble predictions using the specified method
-        """
         models = self.load_models()
         if self.method == 'uniform_soup':
             model = self.uniform_soup(models)
@@ -74,9 +69,7 @@ class EnsemblePredictor:
         self.save_to_csv(predictions=predictions)
 
     def save_to_csv(self, predictions):
-        """
-        예측 결과를 csv 파일로 저장
-        """
+        # 예측 결과를 csv 파일로 저장
         test_info = pd.read_csv(self.config.dataset.data_path + "/test.csv")
         test_info["target"] = np.argmax(predictions, axis=1)
         test_info = test_info.reset_index().rename(columns={"index": "ID"})
@@ -87,8 +80,7 @@ class EnsemblePredictor:
         test_info.to_csv(file_name, index=False, lineterminator="\n")
         print(f"Output csv file successfully saved in {file_name}!!")
 
+    # Run the ensemble predictor using the specified method
     def run(self):
-        """
-        Run the ensemble predictor using the specified method
-        """
         self.ensemble()
+

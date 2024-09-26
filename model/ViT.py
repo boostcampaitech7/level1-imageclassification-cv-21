@@ -26,6 +26,10 @@ class ViT(nn.Module):
         # for name, param in self.model.named_parameters():
         #    print(f"{name}: requires_grad = {param.requires_grad}")
 
+        # 설정 확인
+        # for name, param in self.model.named_parameters():
+        #    print(f"{name}: requires_grad = {param.requires_grad}")
+
         # 'head'를 제외한 서브모듈 얼리기->block까지 안얼리기
         # submodules = [n for n, _ in self.model.named_children()]
         # freeze(self.model, submodules[:submodules.index('head')])
@@ -90,3 +94,11 @@ class ViT(nn.Module):
             print("CLS token requires_grad is set to True")
         except AttributeError:
             print("No CLS token found.")
+    
+    def enhance_cross_attention_finetune(self):
+        """
+            Cross-Attention 메커니즘을 강화하고 fine-tuning을 위해 설정
+        """ 
+        # Cross-Attention 층의 파라미터 학습 활성화
+        for param in self.cross_attention.parameters():
+            param.requires_grad = True

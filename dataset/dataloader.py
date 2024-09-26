@@ -21,26 +21,25 @@ def get_dataloaders(config, batch_size=32):
     Returns:
         Tuple[DataLoader, DataLoader]: Train and validation data loaders.
     """
-    info_df = pd.read_csv(os.path.join(config.dataset.data_path, 'processed_final_final_final.csv'))
-    data_path = os.path.join(config.dataset.data_path, 'processed_final_final_final')
+    info_df = pd.read_csv(os.path.join(config.dataset.data_path, 'train.csv'))
+    data_path = os.path.join(config.dataset.data_path, 'train')
 
-    # train_df, val_df = train_test_split(
-    #     info_df, test_size=0.0, stratify=info_df["target"]
-    # )
-    train_df = info_df
+    train_df, val_df = train_test_split(
+        info_df, test_size=0.2, stratify=info_df["target"]
+    )
 
     transform_selector = TransformSelector(
         input_size=config.dataset.input_size, 
         transform_type=config.dataset.transform_type,
         aa=(config.dataset.aa if config.dataset.transform_type=="autoaugment" else None)
-        )
+    )
 
     train_transform = transform_selector.get_transforms(is_train=True)
     train_dataset = CustomDataset(data_path, train_df, transform=train_transform)
 
     # Create val dataset with validation transforms
-    # val_transform = transform_selector.get_transforms(is_train=False)
-    # val_dataset = CustomDataset(data_path, val_df, transform=val_transform)
+    val_transform = transform_selector.get_transforms(is_train=False)
+    val_dataset = CustomDataset(data_path, val_df, transform=val_transform)
 
     # Create samplers for the train and validation sets
     # train_sampler = SubsetRandomSampler(train_indices)
@@ -56,59 +55,15 @@ def get_dataloaders(config, batch_size=32):
         pin_memory=True,
         drop_last=True
     )
-    # val_loader = DataLoader(
-    #     val_dataset,
-    #     batch_size=batch_size,
-    #     #   sampler=val_sampler,
-    #     shuffle=False,
-    #     num_workers=config.dataset.num_workers,
-    #     pin_memory=True,
-    # )
-    return train_loader, None
-
-
-def get_genuine_valid_loader(config, batch_size=64):
-    """
-    Returns train and validation data loaders.
-
-    Args:
-        data_path (str): Path to the dataset. Defaults to '/home/data/'.
-        batch_size (int): Batch size for each data loader. Defaults to 32.
-        num_workers (int): Number of worker threads for each data loader. Defaults to 1.
-
-    Returns:
-        Tuple[DataLoader, DataLoader]: Train and validation data loaders.
-    """
-    info_df = pd.read_csv(os.path.join(config.dataset.data_path, 'train.csv'))
-    data_path = os.path.join(config.dataset.data_path, 'train')
-
-    _, val_df = train_test_split(
-        info_df, test_size=0.3, random_state=42, stratify=info_df["target"]
-    )
-
-    transform_selector = TransformSelector(
-        input_size=config.dataset.input_size, 
-        transform_type=config.dataset.transform_type,
-        aa=(config.dataset.aa if config.dataset.transform_type=="autoaugment" else None)
-        )
-
-    # Create val dataset with validation transforms
-    val_transform = transform_selector.get_transforms(is_train=False)
-    val_dataset = CustomDataset(data_path, val_df, transform=val_transform)
-
-    # Create samplers for the train and validation sets
-    # train_sampler = SubsetRandomSampler(train_indices)
-    # val_sampler = SubsetRandomSampler(val_indices)
-
-    # Use DataCollator to create batches for both datasets
     val_loader = DataLoader(
         val_dataset,
         batch_size=batch_size,
+        #   sampler=val_sampler,
         shuffle=False,
         num_workers=config.dataset.num_workers,
         pin_memory=True,
     )
-    return val_loader
+    return train_loader, val_loader
 
 
 def get_test_loader(config):
