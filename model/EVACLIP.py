@@ -1,11 +1,9 @@
 import torch
 import torch.nn as nn
-from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import timm
-import transformers
 
-class EVA_CLIP_SketchClassifier(nn.Module):
+class EVACLIP(nn.Module):
     """
     EVA-CLIP-18B 기반 스케치 이미지 분류 모델.
 
@@ -13,9 +11,11 @@ class EVA_CLIP_SketchClassifier(nn.Module):
         num_classes (int): 출력 클래스 수. 기본값은 100.
     """
 
-    def __init__(self, num_classes: int = 100, pretrained: bool = True):
-        super(EVA_CLIP_SketchClassifier, self).__init__()
-
+    def __init__(self, num_classes: int = 500, pretrained: bool = True, drop_path_rate=0.0, **kwargs):
+        super(EVACLIP, self).__init__()
+        self.num_classes = num_classes
+        self.drop_path_rate = drop_path_rate
+        
         # EVA-CLIP-18B 모델 불러오기 (HuggingFace의 CLIPModel 사용)
         self.model = timm.create_model("eva_giant_patch14_224.clip_ft_in1k", pretrained=True)
 
@@ -23,7 +23,7 @@ class EVA_CLIP_SketchClassifier(nn.Module):
         self.model = self.model.eval()
 
         # 분류 레이어 추가 (CLIP의 이미지 출력 크기에 맞게 조정)
-        self.fc = nn.Linear(self.image_encoder.config.hidden_size, num_classes)
+        self.fc = nn.Linear(1024, num_classes)
         self.set_attn_only_finetune()
         self.enhance_cross_attention_finetune()
 
