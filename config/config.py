@@ -69,7 +69,7 @@ class DatasetConfig:
         # 데이터 변환 유형입니다 (torchvision, alubmentations, autoaugment)
         self.transform_type = "albumentations"
         # 이미지 크기입니다
-        self.input_size = 224
+        self.input_size = 448
         # 데이터 로딩에 사용할 워커의 수입니다
         self.num_workers = 3
 

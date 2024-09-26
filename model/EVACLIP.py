@@ -15,15 +15,16 @@ class EVACLIP(nn.Module):
         super(EVACLIP, self).__init__()
         self.num_classes = num_classes
         self.drop_path_rate = drop_path_rate
-        
-        # EVA-CLIP-18B 모델 불러오기 (HuggingFace의 CLIPModel 사용)
-        self.model = timm.create_model("eva_giant_patch14_224.clip_ft_in1k", pretrained=True)
+        self.cross_attention = nn.MultiheadAttention(embed_dim=1000, num_heads=8)
+
+        # EVA-CLIP-18B 모델 불러오기
+        self.model = timm.create_model("eva02_base_patch14_448.mim_in22k_ft_in22k_in1k", pretrained=pretrained)
 
         # CLIP 모델의 이미지 인코더만 사용
         self.model = self.model.eval()
 
         # 분류 레이어 추가 (CLIP의 이미지 출력 크기에 맞게 조정)
-        self.fc = nn.Linear(1024, num_classes)
+        self.fc = nn.Linear(1000, num_classes)
         self.set_attn_only_finetune()
         self.enhance_cross_attention_finetune()
 
@@ -42,7 +43,7 @@ class EVACLIP(nn.Module):
             torch.Tensor: 분류 결과.
         """
         # 이미지 인코더로 특징 추출
-        image_features = self.image_encoder(x).pooler_output
+        image_features = self.model(x)
 
         # 분류 레이어 통과
         logits = self.fc(image_features)
