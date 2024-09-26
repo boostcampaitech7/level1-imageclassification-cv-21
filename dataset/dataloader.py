@@ -32,7 +32,7 @@ def get_dataloaders(config, batch_size=32):
         input_size=config.dataset.input_size, 
         transform_type=config.dataset.transform_type,
         aa=(config.dataset.aa if config.dataset.transform_type=="autoaugment" else None)
-        )
+    )
 
     train_transform = transform_selector.get_transforms(is_train=True)
     train_dataset = CustomDataset(data_path, train_df, transform=train_transform)
