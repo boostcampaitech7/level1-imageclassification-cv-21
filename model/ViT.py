@@ -25,7 +25,6 @@ class ViT(nn.Module):
         # 설정 확인
         # for name, param in self.model.named_parameters():
         #    print(f"{name}: requires_grad = {param.requires_grad}")
-        self.set_attn_only_finetune()
 
         # 설정 확인
         # for name, param in self.model.named_parameters():
