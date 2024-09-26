@@ -33,7 +33,5 @@ def run_test(config, ckpt_dir):
         f"{ckpt_dir}/checkpoint.ckpt", config=config.model
     )
 
-    # trainer_test.validate(best_model, dataloaders=valid_loader)
-
     # 로드된 모델 테스팅 수행
     trainer_test.test(best_model, dataloaders=test_loader)

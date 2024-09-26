@@ -92,3 +92,4 @@ class EnsemblePredictor:
         Run the ensemble predictor using the specified method
         """
         self.ensemble()
+
