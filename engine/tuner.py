@@ -109,6 +109,7 @@ class RayTuner:
         else:
             trainer = Trainer(
                 max_epochs=self.config.experiment.max_epochs,
+                precision="16-mixed" if self.config.training.use_amp else "32-true"
                 devices=self.config.experiment.num_gpus,
                 accelerator="auto",
                 strategy="auto",
