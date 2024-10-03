@@ -11,10 +11,10 @@
 ”심장을 바쳐라”  
 ### 🔅 Members  
 
-김한얼|김보현|김성주|윤남규|정수현|허민석
+김보현|김성주|김한얼|윤남규|정수현|허민석
 :-:|:-:|:-:|:-:|:-:|:-:
 <img src="https://github.com/user-attachments/assets/afedd001-af1e-4526-8a26-7c349a257ac2" height="180"/>|<img src="https://github.com/user-attachments/assets/ded33cfe-53d2-4220-b609-c4e5f25db61f" height="180" width="120"/>|<img src="https://github.com/user-attachments/assets/c4f6ca39-0528-4fa2-8587-fdeceb4405b4" height="180" width="120"/>|<img src="https://github.com/user-attachments/assets/94a7ddff-1da8-460c-8bd0-98e12b29f53f" height="180" width="120"/>|<img src="https://github.com/user-attachments/assets/f357c358-4099-464f-9e4a-ace9340f4ea0" height="180" width="120"/>|<img src="https://github.com/user-attachments/assets/ded33cfe-53d2-4220-b609-c4e5f25db61f" height="180" width="120"/>
-[Github](https://github.com/Haneol-Kijm)|[Github](https://github.com/boyamie)|[Github](https://github.com/kimmaru)|[Github](https://github.com/Namgyu-Youn)|[Github](https://github.com/suhyun6363)|[Github](https://github.com/minseokheo)
+[Github](https://github.com/boyamie)|[Github](https://github.com/kimmaru)|[Github](https://github.com/Haneol-Kijm)|[Github](https://github.com/Namgyu-Youn)|[Github](https://github.com/suhyun6363)|[Github](https://github.com/minseokheo)
 
 
 ### 🔅 Contribution  
