@@ -2,9 +2,8 @@
 # 1. Introduction  
 <br/>
 <p align="center">
-   <img src="./_img/main_ai_7.png" style="width:350px; height:70px;" />
 
-본 과정은 NAVER Connect 재단 주관으로 인공지능과 딥러닝 Production의 End-to-End를 명확히 학습하고 실무에서 구현할 수 있도록 훈련하는 약 7개월간의 교육과정입니다. 전체 과정은 level1~4로 구성되어 있으며 이 곳에는 그 중 첫 번째 대회인 `Image Classification`과제에 대한 **Level1 - 21조** 의 문제해결방법을 기록합니다.
+   ![Banner](https://github.com/user-attachments/assets/a8a7edbe-04e2-461c-bbdd-50c31ba80ff9)
   
 <br/>
 
@@ -14,19 +13,19 @@
 
 김한얼|김보현|김성주|윤남규|정수현|허민석
 :-:|:-:|:-:|:-:|:-:|:-:
-![image1][image1]|![image2][image2]|![image3][image3]|![image4][image4]|![image5][image5]|![image6][image6]
-[Github](https://github.com/Haneol-Kijm)|[Github](https://github.com/boyamie)|[Github](https://github.com/kimmaru)|[Github](https://github.com/Tabianoo)|[Github](https://github.com/suhyun6363)|[Github](https://github.com/minseokheo)
+<img src="https://github.com/user-attachments/assets/afedd001-af1e-4526-8a26-7c349a257ac2" height="200"/>|<img src="https://github.com/user-attachments/assets/ded33cfe-53d2-4220-b609-c4e5f25db61f" height="200" width="120"/>|<img src="https://github.com/user-attachments/assets/c4f6ca39-0528-4fa2-8587-fdeceb4405b4" height="200" width="120"/>|<img src="https://github.com/user-attachments/assets/94a7ddff-1da8-460c-8bd0-98e12b29f53f" height="200" width="120"/>|<img src="https://github.com/user-attachments/assets/f357c358-4099-464f-9e4a-ace9340f4ea0" height="200" width="120"/>|<img src="https://github.com/user-attachments/assets/ded33cfe-53d2-4220-b609-c4e5f25db61f" height="200" width="120"/>
+[Github](https://github.com/Haneol-Kijm)|[Github](https://github.com/boyamie)|[Github](https://github.com/kimmaru)|[Github](https://github.com/Namgyu-Youn)|[Github](https://github.com/suhyun6363)|[Github](https://github.com/minseokheo)
 
 
 ### 🔅 Contribution  
-`김한얼` &nbsp; Modeling • Feature Engineering • Age-specific model • EfficientNet Master • Out of fold  
-`김보현` &nbsp; Dataset curation • Construct Pipeline • Mental Care • Data license verification  
-`김성주` &nbsp; Dataset generation • Dataset curation • Mask synthesis • Hyperparameter tuning  
-`윤남규` &nbsp; Team Management • Dataset preprocessing • Modeling • Make task-specific loss  
-`정수현` &nbsp; EDA, Modeling • Visualizing • Search augmentation technique • MLops  
-`허민석` &nbsp; Modeling • Active Learning • Mentoring • Huggingface pipeline • Handling imbalance problem  
+- `김보현` &nbsp; Model search, Dataset curation, Hyperparameter tuning, Induce efficient augmentation
+- `김성주` &nbsp; Data feature analysis, Enhanced evaluation accuracy, Data augmentation, Hyperparameter tuning
+- `김한얼` &nbsp; Pipeline construction, Code refactorization, Team schedule management, Team workload management, model search
+- `윤남규` &nbsp; Data preprocessing management, Model search, Data augmentation  
+- `정수현` &nbsp; EDA, data generate, model search, feature engineering
+- `허민석` &nbsp; Data curation, Dataset generation, Model search, Code refactoriation
 
-[image1]: ./_img/김한얼.jpg
+[image1]: ./_img/김한얼.png
 [image2]: ./_img/김보현.png
 [image3]: ./_img/김성주.jpg
 [image4]: ./_img/윤남규.png
@@ -37,35 +36,30 @@
 
 # 2. Project Outline  
 
-![competition_title](./_img/competition_title.png)
+![Competition Info](https://github.com/user-attachments/assets/bad4743f-73d4-4b83-a2de-d863ef264aa3)
 
-<p align="center">
-   <img src="./_img/mask_sample.png" width="300" height="300">
-   <img src="./_img/class.png" width="300" height="300">
-</p>
 
 - Task : Image Classification
 - Date : 2024.09.10 - 2024.09.26
-- Description : 
-- Image Resolution : 
-- Train : 
-- Test1 : 
-- Test2 : 
+- Description : Sketch Image를 입력 받아서, 어떤 대상을 묘사하는지 추측해 500개의 class로 분류했습니다.
+- Image Resolution : Auto-augmetation, Label smoothing
+- Train : Kaggle ImageNet-Sketch([ImageNet-Sketch](https://www.kaggle.com/datasets/wanghaohan/imagenetsketch)) + Upstage dataset
+- Test : Kaggle ImaeNet-Sketch + Upstage dataset ( size : 15,000)
 
 ### 🏆 Final Score  
-<p align="center">
-   <img src="./_img/final_score.png" width="700" height="90">
-</p>
 
-<br/>
+![final_score](https://github.com/user-attachments/assets/c7ed5fb2-56eb-452d-bf28-db9f11725562)
+
 
 # 3. Solution
-![process][process]
+![process](https://github.com/user-attachments/assets/ba89917f-66de-46f5-bf99-861cd670691d)
 
 ### KEY POINT
--
--
--
+- Open source library인 timm의 모델들을 위주로 학습을 진행했습니다. (About timm : https://github.com/huggingface/pytorch-image-models)
+- Image 내부에 object의 갯수가 복수인 경우, 유사한 class가 있는 경우가 많아 이를 해결하는 것이 가장 중요했습니다.
+- Firsthand pre-processing을 시도한 train dataset으로 학습을 진행한 경우, 약 7%의 성능 저하가 있었습니다. 이를 통해서 pure dataset은 generalization에 어렵다는 점을 배웠습니다.
+- Mixup, cutmix 등의 적절한 augmentation 기법을 수행한 경우, 약 1.5%의 유의미한 성능을 관찰할 수 있었습니다.
+- WanDB, Tmux을 활용하여 작업 시 효율성과 편의성을 높였습니다.
 
 &nbsp; &nbsp; → 주요 논점을 해결하는 방법론을 제시하고 실험결과를 공유하며 토론을 반복했습니다   
 
@@ -73,68 +67,43 @@
 <br/>
 
 ### Checklist
-More Detail : https://github.com/jinmang2/boostcamp_ai_tech_2/blob/main/assets/ppt/palettai.pdf
-- [x] Transformer based model
-- [x] CNN based model(CLIP, EfficientNet, Nfnet, ResNet, ResNext)
-- [ ] Age-specific model
-- [ ] Three-head model
-- [ ] External Dataset
-- [x] Data Augmentation (Centorcrop, Resize)
-- [ ] Focal loss
-- [x] Weighted Sampling
-- [x] Ensemble
-- [ ] Out of fold
-- [x] Test time augmentation
-- [ ] Stacking
-- [ ] Pseudo Labeling
-- [ ] Noise Label Modification 
-- [ ] Cutmix, cutout
-- [ ] StyleGAN v2 + Mask Synthesis
-- [x] Ray
-- [ ] MC-Dropout
-- [ ] Fixmatch
-- [ ] Semi-supervised learning
+
+1. Data Preprocessing
+- Augmentation : Auto, Trival, Mixup, Cutmix
+- Label smoothing
+- Firsthand data preprocessing (**Data preprossing** branch에서 관련 내용을 확인할 수 있습니다.)
+
+2. Used models
+- CNN based models : ResNet-18, EfficentNet, ConvNeXt
+- Transformer based models : DeiT, EVA-CLIP, SwinV2
+
+3. Ensemble method
+- Median : 성능이 준수한 모델들의 prediction value들의 평균값을 구해서, 이를 새로운 prediction value로 이용
+- Voting : 성능이 준수한 모델들의 값이 일치한 경우를 prediction value로 이용
+- Uniform soup (not applied) : 단일 모델에 대한 앙상블 기법입니다. 본 프로젝트에서는 다양한 모델들의 앙상블 기법만 시도되었습니다.
 
 ### Evaluation
 
-| Method | F-score |
-| --- | --- |
-| Synthetic Dataset + EfficientLite0 | 69.0 |
-| Synthetic Dataset + non-prtrained BEIT | 76.9 |
-| Synthetic Dataset + EfficientNet + Age-speicific | 76.9 |
-| Synthetic Dataset + NFNet (Pseudo Labeling + Weighted Sampling)| 78.5 |
-| Stacking BEIT + NFNet | 77.1 |
+| Method                    | Accuracy |
+| ------------------------- | ------- |
+| rViT + pre-trained        | 88.9    |
+| SwinV2                    | 87.4    |
+| CoatNet + pre-tratined    | 88.7    |
+| DeiT + Voting ensemble    | 90.0    |
+| DeiT Large + TTA Ensemble | 90.3    |
 
-# 4. How to Use
-- External dataset을 이용하기 위해서는 kaggle 의 https://www.kaggle.com/tapakah68/medical-masks-p4 에서 추가적으로 다운로드 받으셔야 합니다. 
-```
-.
-├──input/data/train
-├──input/data/eval
-├──input/data/images(external kaggle data)
-├──image-classification-level1-08
-│   ├── configs
-│   ├── solution
-│         ├── cnn_engine
-│         ├── hugging
-│         ├── jisoo
-│         ├── hugging
-│         └── moon
-```
+<br/>
 
-- `soloution`안에는 각각 **train** •  **test** •  **inference**가 가능한 라이브러리가 들어있습니다  
+# 4. Descriptons about main branch
+1. config : 모델 학습에 필요한 설정 파일들을 관리합니다. 다양한 모델의 정보를 포함하고 있으며, 변경이 가능합니다.
+2. dataset : Data loading 및 Data pre-processing 과정을 처리합니다. 
+3. engine : Training process 관련 코드를 포함하고 있으며, training 및 tuning을 수행합니다.
+4. utils : 프로젝트 내에서 이용되는 utility function들을 포함합니다.
+5. **train.py** : Model training을 수행하는 main script file 이며, 전체 pipeline을 담당합니다.
+<br/>
+
+# 5. How to use
+- 본 대회의 dataset은 외부로 유출이 금지되어 있기 때문에, External data을 이용해야 합니다.
+- External dataset은 '[ImageNet-Sketch](https://www.kaggle.com/datasets/wanghaohan/imagenetsketch)'를 권장합니다
 - 사용자는 전체 코드를 내려받은 후, 옵션을 지정하여 개별 라이브러리의 모델을 활용할 수 있습니다
-- 각 라이브러리의 구성요소는 `./solution/__main__.py`에서 확인할 수 있습니다  
-
-### How to make Synthetic Dataset
-- Use the repo Mask the face(https://github.com/aqeelanwar/MaskTheFace)
-- Use the deepface to label age and gender(https://github.com/serengil/deepface)
-
-
-```bash
-git clone https://github.com/boostcampaitech2/image-classification-level1-08.git
-```
-```bash
-$python __main__.py -m {module} -s {script} -c {config}
-
-```
+`git clone https://github.com/Namgyu-Youn/Booscamp_AI_tech7_level1.git`
