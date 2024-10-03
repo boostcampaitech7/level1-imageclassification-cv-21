@@ -55,7 +55,7 @@
 ![process](https://github.com/user-attachments/assets/ba89917f-66de-46f5-bf99-861cd670691d)
 
 ### KEY POINT
-- Open source library인 timm의 모델들을 위주로 학습을 진행했습니다. (About timm : https://github.com/huggingface/pytorch-image-models)
+- Open source library인 timm의 모델들을 위주로 학습을 진행했습니다. [About timm](https://github.com/huggingface/pytorch-image-models)
 - Image 내부에 object의 갯수가 복수인 경우, 유사한 class가 있는 경우가 많아 이를 해결하는 것이 가장 중요했습니다.
 - Firsthand pre-processing을 시도한 train dataset으로 학습을 진행한 경우, 약 7%의 성능 저하가 있었습니다. 이를 통해서 pure dataset은 generalization에 어렵다는 점을 배웠습니다.
 - Mixup, cutmix 등의 적절한 augmentation 기법을 수행한 경우, 약 1.5%의 유의미한 성능을 관찰할 수 있었습니다.
@@ -93,13 +93,40 @@
 | DeiT Large + TTA Ensemble | 90.3    |
 
 <br/>
-
-# 4. Descriptons about main branch
 1. config : 모델 학습에 필요한 설정 파일들을 관리합니다. 다양한 모델의 정보를 포함하고 있으며, 변경이 가능합니다.
 2. dataset : Data loading 및 Data pre-processing 과정을 처리합니다. 
 3. engine : Training process 관련 코드를 포함하고 있으며, training 및 tuning을 수행합니다.
 4. utils : 프로젝트 내에서 이용되는 utility function들을 포함합니다.
 5. **train.py** : Model training을 수행하는 main script file 이며, 전체 pipeline을 담당합니다.
+
+
+## 4. Descriptons about main branch
+- **train.py** : main 실행 script file 입니다. Model 선택(checkpoint), tuning, ensemble, smoke-test 등을 선택해 훈련을 할 수 있습니다.
+
+**config**
+- Pipeline 설정 값들의 저장소 입니다. 폴더 내부에는 model에 따라서 다양한 'config.py' script file이 있습니다.
+- '**model**_config.py' : **model**의 base parameter(ex. lr, batch_ size) 값들의 모음.
+- model 별로 입력 인자가 다른 경우가 많아서, config.py를 구분해 생성했습니다.
+<br/>
+**dataset** 
+1. dataset.py : dataset을 불러오고, 이를 훈련에 적합하도록 다양한 작업을 수행합니다. (ex. resize. rotation)
+2. dataloader.py : train, test dataset을 불러오고, **train_test_split**을 통해서 train을 훈련+검증 dataset으로 분리합니다.
+3. transforms.py
+	- TransformerSelector : torchvision, albumentations, auto-augment, trivial 중에서 원하는 방법을 입력 인자로 받고 수행함
+	- 각 방법들은 flip, rotation, resizing 등의 작업을 수행 -> **일반적인 상황에서 모델이 잘 작동하도록** 돕는다.
+<br/>
+**engine**
+1. callbacks.py
+	- cf) Python에서 callback : **함수를 호출하고, 이를 출력함**
+	- 여기서는 checkpoint path, model's name 등을 호출받고, 이를 출력합니다.
+2. test_runner.py : config, checkpoint_path(model)을 입력 받습니다. 입력받은 model을 **Lightning**을 이용하여 모델이 잘 작동하는지 확인합니다.
+3. tuner.py : ....
+<br/>
+**model**
+- 다양한 model들이 구현된 코드의 집합체입니다.
+- model_factory.py - importlib : model name을 입력받으면, 그 model의 file을 불러옵니다. 이는 model loading이 편하게 돕습니다.
+<br/>
+**utils** : Wandb login을 수행하고, 필요하다면 ensemble을 수행합니다.
 <br/>
 
 # 5. How to use
